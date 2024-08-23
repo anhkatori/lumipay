@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/clientmanager",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\ClientManager\\": "",
+            "Modules\\ClientManager\\App\\": "app/",
+            "Modules\\ClientManager\\Database\\Factories\\": "database/factories/",
+            "Modules\\ClientManager\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\ClientManager\\Tests\\": "tests/"
+        }
+    }
+}

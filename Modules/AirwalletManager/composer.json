@@ -1,0 +1,31 @@
+{
+    "name": "nwidart/airwalletmanager",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\AirwalletManager\\": "",
+            "Modules\\AirwalletManager\\App\\": "app/",
+            "Modules\\AirwalletManager\\Database\\Factories\\": "database/factories/",
+            "Modules\\AirwalletManager\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\AirwalletManager\\Tests\\": "tests/"
+        }
+    }
+}

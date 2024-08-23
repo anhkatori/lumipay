@@ -1,0 +1,16 @@
+{
+    "name": "ClientManager",
+    "alias": "clientmanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ClientManager\\App\\Providers\\ClientManagerServiceProvider"
+    ],
+    "files": [],
+    "migration": {
+        "seeds": [
+            "Modules\\ClientManager\\Database\\Seeders\\ClientManagerDatabaseSeeder"
+        ]
+    }
+}

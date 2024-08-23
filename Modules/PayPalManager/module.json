@@ -1,0 +1,11 @@
+{
+    "name": "PayPalManager",
+    "alias": "paypalmanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PayPalManager\\App\\Providers\\PayPalManagerServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "StripeManager",
+    "alias": "stripemanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\StripeManager\\App\\Providers\\StripeManagerServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,8 @@
+{
+    "StripeManager": true,
+    "AirwalletManager": true,
+    "Auth": true,
+    "AdminTheme": true,
+    "PayPalManager": true,
+    "ClientManager": true
+}

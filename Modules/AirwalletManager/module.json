@@ -1,0 +1,11 @@
+{
+    "name": "AirwalletManager",
+    "alias": "airwalletmanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\AirwalletManager\\App\\Providers\\AirwalletManagerServiceProvider"
+    ],
+    "files": []
+}

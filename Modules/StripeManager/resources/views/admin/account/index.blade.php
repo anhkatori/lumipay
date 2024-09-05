@@ -24,6 +24,7 @@
                         <th>Max Receive Amount</th>
                         <th>Current Amount</th>
                         <th>Max Order Receive Amount</th>
+                        <th>Client</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -36,6 +37,7 @@
                             <td>{{ $account->max_receive_amount }}</td>
                             <td>{{ $account->current_amount }}</td>
                             <td>{{ $account->max_order_receive_amount }}</td>
+                            <td>{{ $account->client ? $account->client->name : ''  }}</td>
                             <td>{{ $account->getStatus() }}</td>
                             <td>
                                 <div class="d-flex justify-content-center">

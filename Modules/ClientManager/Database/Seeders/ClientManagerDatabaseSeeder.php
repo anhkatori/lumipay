@@ -12,7 +12,7 @@ class ClientManagerDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Client::factory()->count(20)->create();
+        // Client::factory()->count(20)->create();
         // $this->call([]);
     }
 }

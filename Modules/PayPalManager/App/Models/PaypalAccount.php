@@ -23,7 +23,7 @@ class PaypalAccount extends Model
         'status_id', 
         'description', 
         'payment_method',
-        'client_id'
+        'client_id',
     ];
 
     /**
@@ -54,4 +54,7 @@ class PaypalAccount extends Model
         return new PaypalAccountFactory();
     }
     
+    public function getRouteName(){
+        return 'paypal-accounts';
+    }
 }

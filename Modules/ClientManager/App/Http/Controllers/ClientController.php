@@ -17,7 +17,7 @@ class ClientController extends Controller
     {
         $limit = $request->get('limit', 10);
         $limit = $this->validateLimit($limit);
-        $clients = Client::paginate($limit);
+        $clients = Client::orderBy('id', 'desc')->paginate($limit);
         
         return view('clientmanager::admin.index', compact('clients'));
     }
@@ -38,6 +38,7 @@ class ClientController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:clients',
+            'username' => 'required|unique:clients',
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
         ]);
@@ -71,6 +72,7 @@ class ClientController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:clients,email,' . $client->id,
+            'username' => 'required|unique:clients,username,' . $client->id,
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
         ]);
@@ -88,5 +90,13 @@ class ClientController extends Controller
         $client->delete();
 
         return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
+    }
+
+    public function apiCheck(Request $request){
+        return response()->json([
+            'status' => 200,
+            'message' => 'Success',
+            'data' => $request->all()
+        ]);
     }
 }

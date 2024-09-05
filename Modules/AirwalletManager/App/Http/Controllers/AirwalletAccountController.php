@@ -5,6 +5,7 @@ namespace Modules\AirwalletManager\App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\AirwalletManager\App\Models\AirwalletAccount;
+use Modules\ClientManager\App\Models\Client;
 
 class AirwalletAccountController extends Controller
 {
@@ -18,7 +19,8 @@ class AirwalletAccountController extends Controller
 
     public function create()
     {
-        return view('airwalletmanager::admin.account.form');
+        $clients = Client::get();
+        return view('airwalletmanager::admin.account.form', compact('clients'));
     }
 
     public function store(Request $request)
@@ -28,7 +30,8 @@ class AirwalletAccountController extends Controller
             'max_receive_amount' => 'required|numeric',
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
-            'status' => 'required'
+            'status' => 'required',
+            'client_id' => 'required',
         ]);
 
         AirwalletAccount::create($data);
@@ -43,7 +46,8 @@ class AirwalletAccountController extends Controller
 
     public function edit(AirwalletAccount $airwalletAccount)
     {
-        return view('airwalletmanager::admin.account.form', compact('airwalletAccount'));
+        $clients = Client::get();
+        return view('airwalletmanager::admin.account.form', compact('airwalletAccount', 'clients'));
     }
 
     public function update(Request $request, AirwalletAccount $airwalletAccount)
@@ -53,7 +57,8 @@ class AirwalletAccountController extends Controller
             'max_receive_amount' => 'required|numeric',
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
-            'status' => 'required'
+            'status' => 'required',
+            'client_id' => 'required',
         ]);
 
         $airwalletAccount->update($data);

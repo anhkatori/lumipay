@@ -5,6 +5,7 @@ namespace Modules\AirwalletManager\App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\AirwalletManager\Database\Factories\AirwalletAccountFactory;
+use Modules\ClientManager\App\Models\Client;
 
 class AirwalletAccount extends Model
 {
@@ -19,7 +20,8 @@ class AirwalletAccount extends Model
         'max_receive_amount', 
         'current_amount', 
         'max_order_receive_amount', 
-        'status'
+        'status',
+        'client_id',
     ];
 
     public function getStatus(){
@@ -29,5 +31,13 @@ class AirwalletAccount extends Model
     protected static function factory(): AirwalletAccountFactory
     {
         return AirwalletAccountFactory::new();
+    }
+
+    public function client(){
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function getRouteName(){
+        return 'paypal-accounts';
     }
 }

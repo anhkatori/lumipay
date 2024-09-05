@@ -19,6 +19,7 @@ class ClientFactory extends Factory
     {
         return [
             'name' => $this->faker->company,
+            'username' => $this->faker->unique()->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => $this->faker->phoneNumber,
             'address' => $this->faker->address,

@@ -21,10 +21,12 @@
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>User Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Address</th>
                         <th>Merchant ID</th>
+                        <th>Public key</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -33,10 +35,12 @@
                         <tr>
                             <td>{{ $account->id }}</td>
                             <td>{{ $account->name }}</td>
+                            <td>{{ $account->username }}</td>
                             <td>{{ $account->email }}</td>
                             <td>{{ $account->phone }}</td>
                             <td>{{ $account->address }}</td>
                             <td>{{ $account->merchant_id }}</td>
+                            <td>{{ $account->public_key }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a href="{{ route('admin.clients.edit', $account->id) }}" class="btn btn-primary me-1">Edit</a>

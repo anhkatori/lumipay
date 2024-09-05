@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 use Modules\PayPalManager\App\Models\PaypalAccount;
 use Modules\ClientManager\Database\Factories\ClientFactory;
+use Modules\AirwalletManager\App\Models\AirwalletAccount;
+use Modules\StripeManager\App\Models\StripeAccount;
+use Laravel\Sanctum\HasApiTokens;
+
 
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +24,7 @@ class Client extends Model
     protected $fillable = [
         'name',
         'email',
+        'username',
         'phone',
         'address',
         'merchant_id',
@@ -40,8 +45,16 @@ class Client extends Model
         });
     }
 
-    public function PayPalAccounts(){
-        return $this->belongsTo(PaypalAccount::class, 'client_id');
+    public function paypalAccounts(){
+        return $this->hasMany(PaypalAccount::class, 'client_id');
+    }
+
+    public function stripeAccounts(){
+        return $this->hasMany(StripeAccount::class, 'client_id');
+    }
+
+    public function airwalletAccounts(){
+        return $this->hasMany(AirwalletAccount::class, 'client_id');
     }
 
     protected static function factory(): ClientFactory

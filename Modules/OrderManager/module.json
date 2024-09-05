@@ -1,0 +1,11 @@
+{
+    "name": "OrderManager",
+    "alias": "ordermanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\OrderManager\\App\\Providers\\OrderManagerServiceProvider"
+    ],
+    "files": []
+}

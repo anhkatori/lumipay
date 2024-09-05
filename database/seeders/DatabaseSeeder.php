@@ -13,13 +13,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // \App\Models\User::factory(10)->create();
-        
-        if(!\App\Models\User::where('name', 'htcdev')->first()){
-            \App\Models\User::factory()->create([
-                'name' => 'htcdev',
-                'email' => 'dev@htc.com',
-                'password' => 'Htc123@#'
-            ]);
-        }    
+         
     }
 }

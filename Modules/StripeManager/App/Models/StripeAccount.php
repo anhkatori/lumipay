@@ -5,6 +5,7 @@ namespace Modules\StripeManager\App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\StripeManager\Database\Factories\StripeAccountFactory;
+use Modules\ClientManager\App\Models\Client;
 
 class StripeAccount extends Model
 {
@@ -20,7 +21,8 @@ class StripeAccount extends Model
         'max_receive_amount', 
         'current_amount', 
         'max_order_receive_amount', 
-        'status'
+        'status',
+        'client_id',
     ];
 
     public function getStatus(){
@@ -32,4 +34,11 @@ class StripeAccount extends Model
         return new StripeAccountFactory();
     }
     
+    public function client(){
+        return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    public function getRouteName(){
+        return 'stripe-accounts';
+    }
 }

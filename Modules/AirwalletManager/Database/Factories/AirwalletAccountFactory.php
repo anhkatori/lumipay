@@ -3,6 +3,7 @@
 namespace Modules\AirwalletManager\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\ClientManager\App\Models\Client;
 
 class AirwalletAccountFactory extends Factory
 {
@@ -22,6 +23,7 @@ class AirwalletAccountFactory extends Factory
             'current_amount' => $this->faker->randomFloat(2, 0, 10000),
             'max_order_receive_amount' => $this->faker->randomFloat(2, 1, 5000),
             'status' => $this->faker->boolean ? 1 : 0,
+            'client_id' => Client::factory(),
         ];
     }
 }

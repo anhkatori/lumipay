@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Modules\ClientManager\App\Http\Controllers\ClientController;
 
 /*
     |--------------------------------------------------------------------------
@@ -14,6 +15,6 @@ use Illuminate\Support\Facades\Route;
     |
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->name('api.')->group(function () {
-    Route::get('clientmanager', fn (Request $request) => $request->user())->name('clientmanager');
+Route::middleware(['client-api'])->prefix('v1')->name('api.')->group(function () {
+    Route::get('client', [ClientController::class, 'apiCheck']);
 });

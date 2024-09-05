@@ -11,6 +11,12 @@ class AuthDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([]);
+        if(!\App\Models\User::where('name', 'htcdev')->first()){
+            \App\Models\User::factory()->create([
+                'name' => 'htcdev',
+                'email' => 'dev@htc.com',
+                'password' => 'Htc123@#'
+            ]);
+        }   
     }
 }

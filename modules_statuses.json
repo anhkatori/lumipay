@@ -4,5 +4,6 @@
     "Auth": true,
     "AdminTheme": true,
     "PayPalManager": true,
-    "ClientManager": true
+    "ClientManager": true,
+    "OrderManager": true
 }

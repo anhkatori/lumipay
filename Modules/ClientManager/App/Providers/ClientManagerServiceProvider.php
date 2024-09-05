@@ -4,7 +4,7 @@ namespace Modules\ClientManager\App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Routing\Router;
 class ClientManagerServiceProvider extends ServiceProvider
 {
     protected string $moduleName = 'ClientManager';
@@ -33,6 +33,9 @@ class ClientManagerServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
+        $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
+        $this->app->make('router')->aliasMiddleware('client-api', \Modules\ClientManager\App\Http\Middleware\VerifyApiSignature::class);
+
     }
 
     /**
@@ -86,6 +89,7 @@ class ClientManagerServiceProvider extends ServiceProvider
         $this->publishes([module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower.'.php')], 'config');
         $this->mergeConfigFrom(module_path($this->moduleName, 'config/config.php'), $this->moduleNameLower);
         $this->mergeConfigArray($this->adminMenu, 'admin-menu');
+        $this->mergeConfigAuth();
     }
 
     /**
@@ -110,6 +114,11 @@ class ClientManagerServiceProvider extends ServiceProvider
     public function provides(): array
     {
         return [];
+    }
+
+    protected function mergeConfigAuth(){
+        $config = $this->app['config']->get('auth', []);
+        $this->app['config']->set('auth', array_merge_recursive(require module_path($this->moduleName, 'config/auth.php'), $config));
     }
 
     protected function mergeConfigArray($array, $key)

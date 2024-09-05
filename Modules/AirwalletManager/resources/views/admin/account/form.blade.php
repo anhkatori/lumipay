@@ -39,7 +39,16 @@
                     <label class="form-label" for="max_order_receive_amount">Max Order Amount</label>
                     <input type="number" step="0.01" class="form-control @error('max_order_receive_amount') is-invalid @enderror" id="max_order_receive_amount" name="max_order_receive_amount" value="{{ old('max_order_receive_amount', isset($airwalletAccount) ? $airwalletAccount->max_order_receive_amount : '') }}" >
                 </div>
-
+                <div class="form-group mb-3">
+                    <label class="form-label" for="client_id">Client</label>
+                    <select class="form-control @error('client_id')is-invalid @enderror" id="client_id" name="client_id" >
+                        @foreach ($clients as $client)
+                            <option value="{{ $client->id }}" {{ isset($paypalAccount) && $paypalAccount->client_id == $client->id ? 'selected' : '' }}>
+                                {{ $client->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="form-group mb-3">
                     <label class="form-label" for="status">Status</label>
                     <select class="form-control @error('status') is-invalid @enderror" id="status" name="status" >

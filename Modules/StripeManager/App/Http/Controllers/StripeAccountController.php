@@ -5,6 +5,7 @@ namespace Modules\StripeManager\App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\StripeManager\App\Models\StripeAccount;
+use Modules\ClientManager\App\Models\Client;
 
 class StripeAccountController extends Controller
 {
@@ -18,7 +19,8 @@ class StripeAccountController extends Controller
 
     public function create()
     {
-        return view('stripemanager::admin.account.form');
+        $clients = Client::get();
+        return view('stripemanager::admin.account.form', compact('clients'));
     }
 
     public function store(Request $request)
@@ -28,7 +30,8 @@ class StripeAccountController extends Controller
             'max_receive_amount' => 'required|numeric',
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
-            'status' => 'required'
+            'status' => 'required',
+            'client_id' => 'required',
         ]);
 
         StripeAccount::create($data);
@@ -43,7 +46,8 @@ class StripeAccountController extends Controller
 
     public function edit(StripeAccount $stripeAccount)
     {
-        return view('stripemanager::admin.account.form', compact('stripeAccount'));
+        $clients = Client::get();
+        return view('stripemanager::admin.account.form', compact('stripeAccount', 'clients'));
     }
 
     public function update(Request $request, StripeAccount $stripeAccount)
@@ -53,7 +57,8 @@ class StripeAccountController extends Controller
             'max_receive_amount' => 'required|numeric',
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
-            'status' => 'required'
+            'status' => 'required',
+            'client_id' => 'required',
         ]);
 
         $stripeAccount->update($data);

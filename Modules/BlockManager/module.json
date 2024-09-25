@@ -1,0 +1,11 @@
+{
+    "name": "BlockManager",
+    "alias": "blockmanager",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\BlockManager\\App\\Providers\\BlockManagerServiceProvider"
+    ],
+    "files": []
+}

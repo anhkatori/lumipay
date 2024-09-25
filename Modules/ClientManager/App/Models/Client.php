@@ -28,7 +28,7 @@ class Client extends Model
         'phone',
         'address',
         'merchant_id',
-        'public_key',
+        'private_key',
     ];
 
     /**
@@ -41,20 +41,44 @@ class Client extends Model
         // Automatically generate unique merchant_id and public_key on create
         static::creating(function ($client) {
             $client->merchant_id = $client->merchant_id ?? Str::uuid();
-            $client->public_key = $client->public_key ?? Str::random(40);
+            $client->private_key = $client->private_key ?? Str::random(40);
         });
     }
 
-    public function paypalAccounts(){
-        return $this->hasMany(PaypalAccount::class, 'client_id');
+    public function paypalAccounts()
+    {
+        return $this->hasManyThrough(
+            PaypalAccount::class,
+            Client::class,
+            'id', 
+            'client_ids', 
+            'id', 
+            'id' 
+        )->whereRaw("FIND_IN_SET(clients.id, paypal_accounts.client_ids)");
     }
 
-    public function stripeAccounts(){
-        return $this->hasMany(StripeAccount::class, 'client_id');
+    public function stripeAccounts()
+    {
+        return $this->hasManyThrough(
+            StripeAccount::class,
+            Client::class,
+            'id', 
+            'client_ids', 
+            'id', 
+            'id' 
+        )->whereRaw("FIND_IN_SET(clients.id, stripe_accounts.client_ids)");
     }
 
-    public function airwalletAccounts(){
-        return $this->hasMany(AirwalletAccount::class, 'client_id');
+    public function airwalletAccounts()
+    {
+        return $this->hasManyThrough(
+            AirwalletAccount::class,
+            Client::class,
+            'id', 
+            'client_ids', 
+            'id', 
+            'id' 
+        )->whereRaw("FIND_IN_SET(clients.id, airwallet_accounts.client_ids)");
     }
 
     protected static function factory(): ClientFactory

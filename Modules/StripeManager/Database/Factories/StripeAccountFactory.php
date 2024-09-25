@@ -18,12 +18,12 @@ class StripeAccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'domain' => $this->faker->domainName,
+            'domain' => 'http://takepremium.247vn.asia',
             'max_receive_amount' => $this->faker->randomFloat(2, 1, 10000),
             'current_amount' => $this->faker->randomFloat(2, 0, 10000),
             'max_order_receive_amount' => $this->faker->randomFloat(2, 1, 5000),
             'status' => $this->faker->boolean ? 1 : 0, // Randomly assign 0 or 1
-            'client_id' => Client::factory(),
+            'client_ids' => '1,3'
         ];
     }
 }

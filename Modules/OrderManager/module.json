@@ -7,5 +7,10 @@
     "providers": [
         "Modules\\OrderManager\\App\\Providers\\OrderManagerServiceProvider"
     ],
-    "files": []
+    "files": [],
+    "migration": {
+        "seeds": [
+            "Modules\\OrderManager\\Database\\Seeders\\OrderManagerDatabaseSeeder"
+        ]
+    }
 }

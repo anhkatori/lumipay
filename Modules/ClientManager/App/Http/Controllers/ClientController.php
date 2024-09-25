@@ -87,6 +87,10 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        $client->airwalletAccounts()->delete();
+        $client->paypalAccounts()->delete();
+        $client->stripeAccounts()->delete();
+
         $client->delete();
 
         return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');

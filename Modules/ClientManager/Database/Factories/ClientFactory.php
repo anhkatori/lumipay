@@ -23,6 +23,8 @@ class ClientFactory extends Factory
             'email' => $this->faker->unique()->safeEmail,
             'phone' => $this->faker->phoneNumber,
             'address' => $this->faker->address,
+            'private_key' =>  $this->faker->unique()->uuid,
+            'merchant_id' =>  $this->faker->unique()->uuid
         ];
     }
 }

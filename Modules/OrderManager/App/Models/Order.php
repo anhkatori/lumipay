@@ -13,10 +13,24 @@ class Order extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected $fillable = [];
-    
-    protected static function newFactory(): OrderFactory
+    protected $fillable = [
+        'request_id',
+        'amount',
+        'email',
+        'ip',
+        'description',
+        'cancel_url',
+        'return_url',
+        'notify_url',
+        'method',
+        'status',
+        'method_account',
+        'client_id',
+        'canceled'
+    ];
+
+    protected static function factory(): OrderFactory
     {
-        //return OrderFactory::new();
+        return OrderFactory::new();
     }
 }

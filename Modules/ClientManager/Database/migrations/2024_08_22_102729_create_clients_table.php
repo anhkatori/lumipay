@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('merchant_id')->unique();
-            $table->string('public_key')->unique();
+            $table->string('private_key')->unique();
             $table->timestamps();
         });
     }

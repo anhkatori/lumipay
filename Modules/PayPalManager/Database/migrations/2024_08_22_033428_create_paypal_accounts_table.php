@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,16 +14,21 @@ return new class extends Migration
             $table->id();
             $table->string('email');
             $table->string('password');
-            $table->string('domain_site_fake');
-            $table->decimal('max_receive_amount', 15, 2)->default(0);
-            $table->decimal('active_amount', 15, 2)->default(0);
-            $table->decimal('hold_amount', 15, 2)->default(0);
-            $table->decimal('max_order_receive_amount', 15, 2)->default(0);
+            $table->string('seller')->nullable();
+            $table->string('domain_site_fake')->nullable();
+            $table->string('domain_status')->nullable(); 
+            $table->decimal('max_receive_amount', 30, 2)->default(0);
+            $table->decimal('active_amount', 30, 2)->default(0);
+            $table->decimal('hold_amount', 30, 2)->default(0);
+            $table->decimal('max_order_receive_amount', 30, 2)->default(0);
             $table->string('proxy')->nullable();
-            $table->integer('days_stopped')->default(0);
+            $table->timestamp('days_stopped')->nullable();
             $table->text('description')->nullable();
-            $table->string('payment_method');
+            $table->string('payment_method')->nullable();
+            $table->string('site_client')->nullable();
             $table->foreignId('status_id')->constrained('paypal_account_statuses');
+            $table->timestamp('xmdt_status')->nullable(); 
+            $table->string('remover')->nullable(); 
             $table->timestamps();
         });
     }

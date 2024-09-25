@@ -12,7 +12,14 @@ class OrderManagerServiceProvider extends ServiceProvider
     protected string $moduleNameLower = 'ordermanager';
 
     protected $adminMenu = [
-
+        'admin.ordermanager.index' => [
+            'route' => 'admin.ordermanager.index',
+            'name' => 'Orders',
+            'icon' => '<i class="bi bi-cart"></i>',
+            'className' => '',
+            'sortOrder' => 50,
+            'childrens' => []
+        ]
     ];
 
     /**
@@ -26,6 +33,7 @@ class OrderManagerServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/migrations'));
+        $this->app->make('router')->aliasMiddleware('order-api', \Modules\OrderManager\App\Http\Middleware\VerifyApiSignature::class);
     }
 
     /**

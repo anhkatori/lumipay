@@ -31,8 +31,9 @@ class AirwalletAccountController extends Controller
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
             'status' => 'required',
-            'client_id' => 'required',
+            'client_ids' => 'required|array'
         ]);
+        $data['client_ids'] = implode(',', $data['client_ids']);
 
         AirwalletAccount::create($data);
 
@@ -58,18 +59,16 @@ class AirwalletAccountController extends Controller
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
             'status' => 'required',
-            'client_id' => 'required',
+            'client_ids' => 'required|array'
         ]);
-
+        $data['client_ids'] = implode(',', $data['client_ids']);
         $airwalletAccount->update($data);
-
         return redirect()->route('admin.airwallet-accounts.index')->with('success', 'Airwallet Account updated successfully.');
     }
 
     public function destroy(AirwalletAccount $airwalletAccount)
     {
         $airwalletAccount->delete();
-
         return redirect()->route('admin.airwallet-accounts.index')->with('success', 'Airwallet Account deleted successfully.');
     }
 

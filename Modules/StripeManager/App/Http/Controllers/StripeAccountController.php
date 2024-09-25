@@ -31,8 +31,9 @@ class StripeAccountController extends Controller
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
             'status' => 'required',
-            'client_id' => 'required',
+            'client_ids' => 'required|array'
         ]);
+        $data['client_ids'] = implode(',', $data['client_ids']);
 
         StripeAccount::create($data);
 
@@ -58,8 +59,9 @@ class StripeAccountController extends Controller
             'current_amount' => 'required|numeric',
             'max_order_receive_amount' => 'required|numeric',
             'status' => 'required',
-            'client_id' => 'required',
+            'client_ids' => 'required|array'
         ]);
+        $data['client_ids'] = implode(',', $data['client_ids']);
 
         $stripeAccount->update($data);
 

@@ -5,5 +5,8 @@
     "AdminTheme": true,
     "PayPalManager": true,
     "ClientManager": true,
-    "OrderManager": true
+    "OrderManager": true,
+    "Documents": true,
+    "Document": true,
+    "BlockManager": true
 }

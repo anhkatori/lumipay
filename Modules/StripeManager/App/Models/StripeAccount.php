@@ -22,7 +22,7 @@ class StripeAccount extends Model
         'current_amount', 
         'max_order_receive_amount', 
         'status',
-        'client_id',
+        'client_ids',
     ];
 
     public function getStatus(){
@@ -34,8 +34,9 @@ class StripeAccount extends Model
         return new StripeAccountFactory();
     }
     
-    public function client(){
-        return $this->belongsTo(Client::class, 'client_id');
+    public function clients(){
+        return $this->belongsToMany(Client::class)
+            ->whereIn('clients.id', explode(',', $this->client_ids));
     }
 
     public function getRouteName(){

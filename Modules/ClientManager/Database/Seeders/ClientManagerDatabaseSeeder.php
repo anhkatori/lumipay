@@ -12,7 +12,12 @@ class ClientManagerDatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Client::factory()->count(20)->create();
-        // $this->call([]);
+        $client = Client::factory()->make([
+            'private_key' => 'FGhYjUvXLOFYT5lGEd6MYGGvaWUZv3gj2kc5G0Cg',
+            'merchant_id' => 'cde326a2-5cc5-4c87-9873-8c7dfe770cc2'
+        ]);
+        $client->save();
+        Client::factory()->count(5)->create();
+        $this->call([]);
     }
 }

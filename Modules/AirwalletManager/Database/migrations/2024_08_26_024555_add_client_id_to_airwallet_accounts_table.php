@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('airwallet_accounts', function (Blueprint $table) {
-            $table->unsignedBigInteger('client_id')->nullable();
-            $table->foreign('client_id')
-                ->references('id')
-                ->on('clients')
-                ->onUpdate('cascade');
+            $table->string('client_ids')->nullable();
         });
     }
 
@@ -26,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('airwallet_accounts', function (Blueprint $table) {
-            $table->dropForeign(['client_id']);
-            $table->dropColumn('client_id');
+            $table->dropColumn('client_ids');
         });
     }
 };

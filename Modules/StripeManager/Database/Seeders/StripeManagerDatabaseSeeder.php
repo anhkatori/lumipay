@@ -12,6 +12,6 @@ class StripeManagerDatabaseSeeder extends Seeder
     public function run(): void
     {
         // $this->call([]);
-        StripeAccount::factory()->count(20)->create();
+        StripeAccount::factory()->count(1)->create();
     }
 }

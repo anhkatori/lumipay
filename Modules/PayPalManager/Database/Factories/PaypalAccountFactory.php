@@ -20,18 +20,21 @@ class PaypalAccountFactory extends Factory
     {
         return [
             'email' => $this->faker->unique()->safeEmail,
-            'password' => bcrypt('password'), // Use bcrypt to hash the password
-            'domain_site_fake' => $this->faker->domainName,
+            'password' => base64_encode('password@123'),
+            'seller' => $this->faker->company, 
+            'domain_site_fake' => 'http://takepremium.247vn.asia',
+            'domain_status' => $this->faker->randomElement(['1', '0']), 
             'max_receive_amount' => $this->faker->randomFloat(2, 1, 10000),
             'active_amount' => $this->faker->randomFloat(2, 0, 10000),
             'hold_amount' => $this->faker->randomFloat(2, 0, 10000),
             'max_order_receive_amount' => $this->faker->randomFloat(2, 1, 5000),
-            'proxy' => $this->faker->optional()->ipv4, // Optional proxy field
-            'days_stopped' => $this->faker->numberBetween(0, 30),
-            'status_id' => $this->faker->numberBetween(1, 5), // Assumes status IDs are between 1 and 5
+            'proxy' => $this->faker->optional()->ipv4,
             'description' => $this->faker->sentence,
-            'payment_method' => $this->faker->randomElement(array_keys(PaypalAccount::getPaymentMethods())), // Random payment method
-            'client_id' => Client::factory(), // Assumes you have a factory for Client model
+            'payment_method' => $this->faker->randomElement(array_keys(PaypalAccount::getPaymentMethods())),
+            'site_client' => $this->faker->domainName(),
+            'status_id' => $this->faker->numberBetween(1, 5),
+            'remover' => $this->faker->name,
+            'client_ids' => '1,3'
         ];
     }
 }

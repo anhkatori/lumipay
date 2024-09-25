@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\OrderManager\App\Http\Controllers\OrderManagerController;
+use Modules\OrderManager\App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +14,6 @@ use Modules\OrderManager\App\Http\Controllers\OrderManagerController;
 |
 */
 
-Route::group([], function () {
-    Route::resource('ordermanager', OrderManagerController::class)->names('ordermanager');
+Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
+    Route::resource('ordermanager', OrderController::class);
 });

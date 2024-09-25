@@ -88,7 +88,6 @@
                 @endforeach
             </tbody>
         </table>
-        {{ $blockedEmails->links() }}
     </div>
     <div class="card-footer clearfix">
         {{$blockedEmails->links('admintheme::layouts.pagination')}}

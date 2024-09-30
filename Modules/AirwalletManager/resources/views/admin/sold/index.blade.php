@@ -116,13 +116,11 @@
                                                         </div>
                                                     </div>
                                                     <div class="mb-3 row">
-                                                        <label for="status" class="col-sm-2 col-form-label">Status</label>
-                                                        <div class="col-sm-2">
+                                                    <label for="status" class="col-sm-2 col-form-label">Activate</label>
+                                                    <div class="col-sm-2">
                                                             <div class="form-check form-switch d-flex align-items-center ms-4">
                                                                 <input class="form-check-input" type="checkbox" id="status" style="font-size: x-large;float: inherit;" name=" status" {{ $airwalletMoney->status == 1 ? 'checked' : '' }}
                                                                     {{ $airwalletMoney->status == 1 ? 'disabled' : '' }}>
-                                                                <label class="form-check-label mt-1 ms-2" id="status-label"
-                                                                    for="status">{{ucfirst($airwalletMoney->getStatus())}}</label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -159,21 +157,5 @@
                 }
             });
         });
-        const statusInput = document.getElementById('status');
-        const statusLabel = document.getElementById('status-label');
-
-        statusInput.addEventListener('change', () => {
-            if (statusInput.checked) {
-                statusLabel.textContent = 'Activate';
-            } else {
-                statusLabel.textContent = 'Hold';
-            }
-        });
-
-        if (statusInput.checked) {
-            statusLabel.textContent = 'Activate';
-        } else {
-            statusLabel.textContent = 'Hold';
-        }
     </script>
 @endpush

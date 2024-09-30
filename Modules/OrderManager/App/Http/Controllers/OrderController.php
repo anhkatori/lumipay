@@ -9,6 +9,8 @@ use Modules\ClientManager\App\Models\Client;
 use Modules\PayPalManager\App\Models\PaypalAccount;
 use Modules\StripeManager\App\Models\StripeAccount;
 use Modules\AirwalletManager\App\Models\AirwalletAccount;
+use Modules\BlockManager\App\Models\BlockedIp;
+use Modules\BlockManager\App\Models\BlockedEmail;
 use Illuminate\Support\Facades\Log;
 use \Carbon\Carbon;
 use Log as Log2;
@@ -84,6 +86,14 @@ class OrderController extends Controller
 
         $params = $request->all();
         ksort($params);
+        if (!$this->checkBlockedIpAndEmail($params['ip'], $params['email'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email or IP blocked!',
+                'payment_url' => '',
+                'error' => $params['method']
+            ]);
+        }
         if ($methodData = $this->isValidMethod($params, $client)) {
             $params['status'] = 'processing';
             $params['client_id'] = (int) $client['id'];
@@ -304,5 +314,21 @@ class OrderController extends Controller
             }
             return $url;
         }
+    }
+
+    public function checkBlockedIpAndEmail($ip = null, $email = null)
+    {
+        $blockedIp = BlockedIp::where('ip_ban', $ip)->first();
+        $blockedEmail = BlockedEmail::where('email', $email)->first();
+
+        if ($blockedIp || $blockedEmail) {
+            if ($blockedEmail && !$blockedIp) {
+                BlockedIp::create(['ip_ban' => $ip, 'sort_ip' => '']);
+            } elseif ($blockedIp && !$blockedEmail) {
+                BlockedEmail::create(['email' => $email, 'name' => '', 'money_account' => '0', 'money_bonus' => '0', 'status_lock' => '1', 'status_delete' => '0']);
+            }
+            return false;
+        }
+        return true;
     }
 }

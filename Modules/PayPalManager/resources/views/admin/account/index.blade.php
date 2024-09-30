@@ -103,7 +103,7 @@
                         <td class="align-middle">
                             <span class="badge {{ $account->domain_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ $account->domain_status ? '#4CAF50' : '#d9534f' }};
                                      border-radius: 5px;">
-                                Site {{ $account->domain_status ? 'ON' : 'OFF' }}
+                                {{ $account->domain_status ? 'ON' : 'OFF' }}
                             </span>
                         </td>
                         <td class="align-middle">({{ $account->active_amount }} + {{ $account->hold_amount }}) /

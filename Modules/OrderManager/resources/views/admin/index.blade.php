@@ -50,6 +50,7 @@
                     <th>Amount</th>
                     <th>Email</th>
                     <th>IP</th>
+                    <th>Additional</th>
                     <th>Description</th>
                     <th>Method</th>
                     <th>Additional</th>
@@ -66,6 +67,7 @@
                                     <td class="align-middle">{{ $order->amount }}</td>
                                     <td class="align-middle">{{ $order->email }}</td>
                                     <td class="align-middle">{{ $order->ip }}</td>
+                                    <td class="align-middle">{{ $order->additional }}</td>
                                     <td class="align-middle">{{ $order->description }}</td>
                                     <td class="align-middle">
                                         {{ [
@@ -78,7 +80,7 @@
                                     <td class="align-middle">
                                         <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
                                             style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
-                                                            border-radius: 5px;">
+                                                                            border-radius: 5px;">
                                             {{ $order->status}}
                                         </span>
                                     </td>

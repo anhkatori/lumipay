@@ -116,6 +116,7 @@ class OrderController extends Controller
             if (!$order) {
                 $order = Order::create(attributes: $params);
             }
+
             $signature = $this->generateSignatureToCheckWhenUpdate((string) $client->private_key, (string) $order['id']);
             switch ($params['method']) {
                 case 'PAYPAL':

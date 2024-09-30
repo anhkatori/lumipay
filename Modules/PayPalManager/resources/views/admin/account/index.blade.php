@@ -49,7 +49,8 @@
                             <label style="float:left" for="client">Client:</label>
                             <select name="client[]" class="form-control" multiple>
                                 @foreach($clients as $client)
-                                <option value="{{ $client->id }}" @if(in_array($client->id, $selectedClients)) selected @endif>{{ $client->name }}</option>
+                                    <option value="{{ $client->id }}" @if(in_array($client->id, $selectedClients)) selected
+                                    @endif>{{ $client->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -78,42 +79,56 @@
             <thead>
                 <tr>
                     <th>Acc Paypal</th>
-                    <th>Domain - Site Client</th>
+                    <th>Domain - Client</th>
                     <th>Domain Status</th>
-                    <th>(Money Activate + Money Hold) / Max Receive</th>
+                    <th>Activate + Hold / Max Receive</th>
                     <th>Max Amount/Order</th>
-                    <th>Stop Days</th>
                     <th>Status</th>
-                    <th>Site Fake or Invoice</th>
+                    <th>Type</th>
                     <th>Status XMDT</th>
+                    <th>Stop Days</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($paypalAccounts as $account)
                     <tr>
-                        <td>{{ $account->email }} - {{ utf8_decode($account->password) }} <br> {{ $account->seller }} -
+                        <td class="align-middle">{{ $account->email }} | {{ utf8_decode($account->password) }}
+                            <hr> {{ $account->seller }} |
                             {{ $account->proxy }}
                         </td>
-                        <td>{{ $account->domain_site_fake }} <br> {{ $account->site_client }}</td>
-                        <td>{{ $account->domain_status }}</td>
-                        <td>({{ $account->active_amount }} + {{ $account->hold_amount }}) /
+                        <td class="align-middle">{{ $account->domain_site_fake }}
+                            <hr> {{ $account->site_client }}
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge {{ $account->domain_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ $account->domain_status ? '#4CAF50' : '#d9534f' }};
+                                     border-radius: 5px;">
+                                Site {{ $account->domain_status ? 'ON' : 'OFF' }}
+                            </span>
+                        </td>
+                        <td class="align-middle">({{ $account->active_amount }} + {{ $account->hold_amount }}) /
                             {{ $account->max_receive_amount }}
                         </td>
-                        <td>{{ $account->max_order_receive_amount }}</td>
-                        <td>{{ $account->days_stopped }}</td>
-                        <td>
+                        <td class="align-middle">{{ $account->max_order_receive_amount }}</td>
+                        <td class="align-middle">
                             @if($account->status && $account->status->name == 'Work')
-                                <span style="color: green">{{ $account->status->name }}</span>
+                                <span class="badge" style="background-color: #4CAF50;border-radius: 5px;">{{ $account->status->name }}</span>
                             @elseif($account->status && $account->status->name == 'Pending')
-                                <span style="color: blue">{{ $account->status->name }}</span>
+                                <span class="badge" style="background-color: #4c8faf;border-radius: 5px;">{{ $account->status->name }}</span>
                             @else
-                                <span style="color: red">{{ $account->status->name }}</span>
+                                <span class="badge" style="background-color: #d9534f;border-radius: 5px;">{{ $account->status->name }}</span>
                             @endif
                         </td>
-                        <td>{{ $account->getPaymentMethod() }}</td>
-                        <td>{{ $account->xmdt_status }}</td>
-                        <td>
+                        <td class="align-middle">{{ $account->getPaymentMethod() }}</td>
+                        <td class="align-middle">
+                            <span class="badge {{ !$account->xmdt_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ !$account->xmdt_status ? '#4CAF50' : '#d9534f' }};
+                             border-radius: 5px;">
+                                {{ !$account->xmdt_status ? 'OFF' : 'XMDT(' . floor(now()->diffInDays($account->xmdt_status)) . 'd)' }}
+                            </span>
+                        </td>
+                        <td class="align-middle">{{ $account->days_stopped ? floor(now()->diffInDays($account->days_stopped)) . ' days' : '' }}
+                        </td>
+                        <td class="align-middle">
                             <div class="d-flex">
                                 <a href="{{ route('admin.paypal-accounts.edit', $account->id) }}"
                                     class="btn btn-primary me-2">Edit</a>

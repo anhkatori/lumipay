@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\AirwalletManager\Database\Factories\AirwalletAccountFactory;
 use Modules\ClientManager\App\Models\Client;
+use Modules\AirwalletManager\App\Models\AirwalletMoney;
 
 class AirwalletAccount extends Model
 {
@@ -38,7 +39,18 @@ class AirwalletAccount extends Model
             ->whereIn('clients.id', explode(',', $this->client_ids));
     }
 
+    public function getClientsAttribute()
+    {
+        return Client::whereIn('id', explode(',', $this->client_ids))->get();
+    }
+
     public function getRouteName(){
         return 'airwallet-accounts';
+    }
+    public function getWithdrawn()
+    {
+        return $this->hasMany(AirwalletMoney::class, 'account_id', 'id')
+            ->where('status', 0)
+            ->sum('money');
     }
 }

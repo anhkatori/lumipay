@@ -55,26 +55,26 @@
             <tbody>
                 @foreach($blockedEmails as $blockedEmail)
                     <tr>
-                        <td>{{ $blockedEmail->id }}</td>
-                        <td>{{ $blockedEmail->email }}</td>
-                        <td>{{ $blockedEmail->name }}</td>
-                        <td>{{ $blockedEmail->money_account }}</td>
-                        <td>{{ $blockedEmail->money_bonus }}</td>
-                        <td>
-                            @if($blockedEmail->status_lock == 1)
-                                <span class="text-danger">Locked</span>
-                            @else
-                                <span class="text-muted">Not Locked</span>
-                            @endif
+                        <td class="align-middle">{{ $blockedEmail->id }}</td>
+                        <td class="align-middle">{{ $blockedEmail->email }}</td>
+                        <td class="align-middle">{{ $blockedEmail->name }}</td>
+                        <td class="align-middle">{{ $blockedEmail->money_account }}</td>
+                        <td class="align-middle">{{ $blockedEmail->money_bonus }}</td>
+                        <td class="align-middle">
+                            <span class="badge {{ $blockedEmail->status_lock == 1 ? 'badge-success' : 'badge-danger' }}"
+                                style="background-color: {{ $blockedEmail->status_lock == 1 ? '#d9534f' : '#4CAF50' }};
+                                            border-radius: 5px;">
+                                {{ $blockedEmail->status_lock == 1 ? 'Locked' : 'Not Locked' }}
+                            </span>
                         </td>
-                        <td>
-                            @if($blockedEmail->status_delete == 1)
-                                <span class="text-primary">Okie</span>
-                            @else
-                                <span class="text-muted">None</span>
-                            @endif
+                        <td class="align-middle">
+                            <span class="badge {{ $blockedEmail->status_delete == 0 ? 'badge-success' : 'badge-danger' }}"
+                                style="background-color: {{ $blockedEmail->status_delete == 0 ? '#d9534f' : '#4CAF50' }};
+                                            border-radius: 5px;">
+                                {{ $blockedEmail->status_delete == 0 ? 'None' : 'Okie' }}
+                            </span>
                         </td>
-                        <td>
+                        <td class="align-middle">
                             <a href="{{ route('admin.blocked-email.edit', $blockedEmail->id) }}"
                                 class="btn btn-primary">Edit</a>
                             <form action="{{ route('admin.blocked-email.destroy', $blockedEmail->id) }}" method="POST"

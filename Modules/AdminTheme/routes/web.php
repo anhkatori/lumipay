@@ -17,6 +17,7 @@ use Modules\AdminTheme\App\Http\Controllers\FallbackController;
 
 Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/get-chart-data', 'DashboardController@getChartDataAjax')->name('get-chart-data');
 });
 
 Route::fallback([FallbackController::class, 'index']);

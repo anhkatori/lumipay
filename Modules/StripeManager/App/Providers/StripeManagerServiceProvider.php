@@ -10,15 +10,25 @@ class StripeManagerServiceProvider extends ServiceProvider
     protected string $moduleName = 'StripeManager';
 
     protected string $moduleNameLower = 'stripemanager';
-
     protected $adminMenu = [
         'admin.stripe-accounts.index' => [
-            'route' => 'admin.stripe-accounts.index',
+            'route' => '',
             'name' => 'Manage Stripe',
             'icon' => '<i class="bi bi-stripe"></i>',
             'className' => '',
-            'sortOrder' => 20,
-            'childrens' => [],
+            'sortOrder' => 11,
+            'childrens' => [
+                'stripe-accounts' => [
+                    'route' => 'admin.stripe-accounts.index',
+                    'name' => 'Stripe Accounts',
+                    'className' => 'mx-3',
+                ],
+                'stripe-money' => [
+                    'route' => 'admin.stripe-moneys.sold-index',
+                    'name' => 'Stripe Sold',
+                    'className' => 'mx-3',
+                ],
+            ],
         ]
     ];
 

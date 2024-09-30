@@ -18,4 +18,6 @@ use Modules\PayPalManager\App\Http\Controllers\PaypalAccountController;
 Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::resource('paypal-accounts', PaypalAccountController::class);
     Route::post('paypal-accounts/sell', 'PaypalAccountController@sell')->name('paypal-accounts.sell');
+    Route::get('paypal-moneys/sold-index', 'PaypalAccountController@soldIndex')->name('paypal-moneys.sold-index');
+    Route::put('paypal-moneys/sold-update/{id}', 'PaypalAccountController@updateSold')->name('paypal-moneys.sold-update');
 });

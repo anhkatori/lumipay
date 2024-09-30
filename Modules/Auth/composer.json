@@ -27,5 +27,8 @@
         "psr-4": {
             "Modules\\Auth\\Tests\\": "tests/"
         }
+    },
+    "require": {
+        "josiasmontag/laravel-recaptchav3": "^1.0"
     }
 }

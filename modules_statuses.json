@@ -8,5 +8,6 @@
     "OrderManager": true,
     "Documents": true,
     "Document": true,
-    "BlockManager": true
+    "BlockManager": true,
+    "BlockManagera": true
 }

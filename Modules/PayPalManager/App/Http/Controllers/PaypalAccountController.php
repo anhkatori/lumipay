@@ -8,7 +8,8 @@ use Modules\PayPalManager\App\Models\PaypalAccount;
 use Modules\PayPalManager\App\Models\PaypalMoney;
 use Modules\PayPalManager\App\Models\PaypalAccountStatus;
 use Modules\ClientManager\App\Models\Client;
-
+use Log;
+use Exception;
 class PaypalAccountController extends Controller
 {
     public function index(Request $request)
@@ -44,12 +45,14 @@ class PaypalAccountController extends Controller
             ->when($request->get('payment_type'), function ($query) use ($request) {
                 $query->where('payment_method', $request->get('payment_type'));
             })
+            ->orderBy('status_id')
+            ->orderBy('id')
             ->paginate($limit);
-    
+
         $statuses = PaypalAccountStatus::all();
         $paymentTypes = PaypalAccount::getPaymentMethods();
-        $clients = Client::all(); 
-        $selectedClients = $request->get('client', []); 
+        $clients = Client::all();
+        $selectedClients = $request->get('client', []);
         return view('paypalmanager::admin.account.index', compact('paypalAccounts', 'statuses', 'paymentTypes', 'clients', 'selectedClients'));
     }
 
@@ -156,9 +159,6 @@ class PaypalAccountController extends Controller
             return redirect()->route('admin.paypal-accounts.index')->with('error', 'Invalid amount to sell.');
         }
 
-        if ($paypalAccount->active_amount < $moneyToSell) {
-            return redirect()->route('admin.paypal-accounts.index')->with('error', 'Not enough active amount in PayPal account.');
-        }
         $paypalMoney = new PaypalMoney();
         $paypalMoney->account_id = $request['account-id'];
         $paypalMoney->paypal_email = $paypalAccount->email;
@@ -167,9 +167,42 @@ class PaypalAccountController extends Controller
         $paypalMoney->buyer_name = $request->input('buyer_name');
         $paypalMoney->save();
 
-        $paypalAccount->active_amount -= $moneyToSell;
+        $paypalAccount->active_amount += $moneyToSell;
         $paypalAccount->save();
 
         return redirect()->route('admin.paypal-accounts.index')->with('success', 'PayPal sell successfully.');
+    }
+
+    public function soldIndex(Request $request)
+    {
+        $limit = $request->get('limit', 10);
+        $limit = $this->validateLimit($limit);
+        $paypalMoneys = PaypalMoney::when($request->get('paypal_email'), function ($query) use ($request) {
+            $query->where('paypal_email', 'like', '%' . $request->get('paypal_email') . '%');
+        })
+            ->when($request->get('buyer_email'), function ($query) use ($request) {
+                $query->where('buyer_email', 'like', '%' . $request->get('buyer_email') . '%');
+            })
+            ->orderBy('id')
+            ->paginate($limit);
+
+        return view('paypalmanager::admin.account.sold', compact('paypalMoneys'));
+    }
+
+    public function updateSold(Request $request, $id)
+    {
+        $paypalMoney = PaypalMoney::find($id);
+        $oldMoney = $paypalMoney->money;
+        $paypalMoney->money = $request->input('money');
+        $paypalMoney->buyer_email = $request->input('buyer_email');
+        $paypalMoney->buyer_name = $request->input('buyer_name');
+        $paypalMoney->save();
+
+        $paypalAccount = PaypalAccount::where('id', $paypalMoney->account_id)->first();
+        if ($paypalAccount) {
+            $paypalAccount->active_amount = $paypalAccount->active_amount + $paypalMoney->money - $oldMoney;
+            $paypalAccount->save();
+        }
+        return redirect()->route('admin.paypal-moneys.sold-index')->with('success', 'Update successfully.');
     }
 }

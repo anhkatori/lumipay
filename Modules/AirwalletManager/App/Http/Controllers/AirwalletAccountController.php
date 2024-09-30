@@ -13,7 +13,9 @@ class AirwalletAccountController extends Controller
     {
         $limit = $request->get('limit', 10);
         $limit = $this->validateLimit($limit);
-        $airwalletAccounts = AirwalletAccount::paginate($limit);
+        $airwalletAccounts = AirwalletAccount::orderBy('status', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->paginate($limit);
         return view('airwalletmanager::admin.account.index', compact('airwalletAccounts'));
     }
 

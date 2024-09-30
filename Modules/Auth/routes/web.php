@@ -14,5 +14,6 @@ use Modules\Auth\App\Http\Controllers\LoginController;
 */
 Route::get('/', [LoginController::class, 'login'])->name('login');
 Route::post('login', [LoginController::class, 'postLogin'])->name('login.post');
+Route::get('logout', [LoginController::class, 'logout'])->name('admin.logout');
 
 

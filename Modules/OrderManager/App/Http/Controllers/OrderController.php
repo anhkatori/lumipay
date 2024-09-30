@@ -11,7 +11,7 @@ use Modules\StripeManager\App\Models\StripeAccount;
 use Modules\AirwalletManager\App\Models\AirwalletAccount;
 use Illuminate\Support\Facades\Log;
 use \Carbon\Carbon;
-
+use Log as Log2;
 class OrderController extends Controller
 {
     /**
@@ -21,7 +21,32 @@ class OrderController extends Controller
     {
         $limit = $request->get('limit', 10);
         $limit = $this->validateLimit($limit);
-        $orders = Order::orderBy('id', 'desc')->paginate($limit);
+
+        $orders = Order::when($request->get('request_id'), function ($query) use ($request) {
+            $query->where('request_id', 'like', '%' . $request->get('request_id') . '%');
+        })
+            ->when($request->get('email'), function ($query) use ($request) {
+                $query->where('email', 'like', '%' . $request->get('email') . '%');
+            })
+            ->when($request->get('method_account'), function ($query) use ($request) {
+                $query->where(function ($query) use ($request) {
+                    $query->where('method', 'PAYPAL')
+                        ->whereHas('paypalAccount', function ($query) use ($request) {
+                            $query->where('email', 'like', '%' . $request->get('method_account') . '%');
+                        })
+                        ->orWhere('method', 'CREDIT_CARD')
+                        ->whereHas('stripeAccount', function ($query) use ($request) {
+                            $query->where('domain', 'like', '%' . $request->get('method_account') . '%');
+                        })
+                        ->orWhere('method', 'CREDIT_CARD_2')
+                        ->whereHas('airwalletAccount', function ($query) use ($request) {
+                            $query->where('domain', 'like', '%' . $request->get('method_account') . '%');
+                        });
+                });
+            })
+            ->with('paypalAccount', 'stripeAccount', 'airwalletAccount')
+            ->orderBy('id', 'desc')
+            ->paginate($limit);
 
         return view('ordermanager::admin.index', compact('orders'));
     }
@@ -63,6 +88,16 @@ class OrderController extends Controller
             $params['status'] = 'processing';
             $params['client_id'] = (int) $client['id'];
             $params['method_account'] = $methodData['id'];
+            $params['addtional'] = '';
+            if (isset($params['country_code'])) {
+                $params['addtional'] .= $params['country_code'];
+            }
+            if (isset($params['country_name'])) {
+                $params['addtional'] .= '|' . $params['country_name'];
+            }
+            if (isset($params['ips'])) {
+                $params['addtional'] .= '|' . $params['ips'];
+            }
 
             $order = Order::where('client_id', $params['client_id'])
                 ->where('request_id', $params['request_id'])
@@ -80,7 +115,8 @@ class OrderController extends Controller
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
-                        'payment_url' => $methodData['domain_site_fake'] . "?wc-ajax=tpaypal&hash=" . $orderCode
+                        'payment_url' => $methodData['domain_site_fake'] . "?wc-ajax=tpaypal&hash=" . $orderCode,
+                        'error' => ''
                     ]);
                     break;
                 case 'CREDIT_CARD':
@@ -88,7 +124,8 @@ class OrderController extends Controller
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
-                        'payment_url' => $methodData['domain'] . "?wc-ajax=stripe_redirect&hash=" . $orderCode
+                        'payment_url' => $methodData['domain'] . "?wc-ajax=stripe_redirect&hash=" . $orderCode,
+                        'error' => ''
                     ]);
                     break;
                 case 'CREDIT_CARD_2':
@@ -96,7 +133,8 @@ class OrderController extends Controller
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
-                        'payment_url' => $methodData['domain'] . "?wc-ajax=visa_magento_redirect&hash=" . $orderCode
+                        'payment_url' => $methodData['domain'] . "?wc-ajax=visa_magento_redirect&hash=" . $orderCode,
+                        'error' => ''
                     ]);
                     break;
                 default:
@@ -107,7 +145,8 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'error',
             'message' => 'Payment not valid',
-            'payment_url' => ''
+            'payment_url' => '',
+            'error' => $params['method']
         ]);
     }
     protected function isValidMethod($params, $client)
@@ -124,7 +163,7 @@ class OrderController extends Controller
                     $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
             });
             // var_dump($filteredAccounts->count()); die;
-            if($filteredAccounts->count()>0){
+            if ($filteredAccounts->count() > 0) {
                 $randomAccount = $filteredAccounts->random();
                 return $randomAccount;
             }
@@ -137,7 +176,7 @@ class OrderController extends Controller
                     $account->status == '1' &&
                     $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
             });
-            if($filteredAccounts->count()>0){
+            if ($filteredAccounts->count() > 0) {
                 $randomAccount = $filteredAccounts->random();
                 return $randomAccount;
             }
@@ -151,7 +190,7 @@ class OrderController extends Controller
                     $account->status == '1' &&
                     $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
             });
-            if($filteredAccounts->count()>0){
+            if ($filteredAccounts->count() > 0) {
                 $randomAccount = $filteredAccounts->random();
                 return $randomAccount;
             }

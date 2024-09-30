@@ -33,15 +33,15 @@
                 <tbody>
                     @foreach ($clients as $account)
                         <tr>
-                            <td>{{ $account->id }}</td>
-                            <td>{{ $account->name }}</td>
-                            <td>{{ $account->username }}</td>
-                            <td>{{ $account->email }}</td>
-                            <td>{{ $account->phone }}</td>
-                            <td>{{ $account->address }}</td>
-                            <td>{{ $account->merchant_id }}</td>
-                            <td>{{ $account->private_key }}</td>
-                            <td>
+                            <td class="align-middle">{{ $account->id }}</td>
+                            <td class="align-middle">{{ $account->name }}</td>
+                            <td class="align-middle">{{ $account->username }}</td>
+                            <td class="align-middle">{{ $account->email }}</td>
+                            <td class="align-middle">{{ $account->phone }}</td>
+                            <td class="align-middle">{{ $account->address }}</td>
+                            <td class="align-middle">{{ $account->merchant_id }}</td>
+                            <td class="align-middle">{{ $account->private_key }}</td>
+                            <td class="align-middle">
                                 <div class="d-flex">
                                     <a href="{{ route('admin.clients.edit', $account->id) }}" class="btn btn-primary me-1">Edit</a>
                                     <form action="{{ route('admin.clients.destroy', $account->id) }}" method="POST" style="display:inline-block;">

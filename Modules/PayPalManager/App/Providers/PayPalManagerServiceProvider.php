@@ -13,15 +13,26 @@ class PayPalManagerServiceProvider extends ServiceProvider
 
     protected $adminMenu = [
         'admin.paypal-accounts.index' => [
-            'route' => 'admin.paypal-accounts.index',
+            'route' => '',
             'name' => 'Manage PayPal',
             'icon' => '<i class="bi bi-paypal"></i>',
             'className' => '',
             'sortOrder' => 10,
             'childrens' => [
+                'paypal-accounts' => [
+                    'route' => 'admin.paypal-accounts.index',
+                    'name' => 'Paypal Accounts',
+                    'className' => 'mx-3',
+                ],
+                'paypal-money' => [
+                    'route' => 'admin.paypal-moneys.sold-index',
+                    'name' => 'Paypal Sold',
+                    'className' => 'mx-3',
+                ],
             ],
         ]
     ];
+
 
     /**
      * Boot the application events.

@@ -13,12 +13,24 @@ class AirwalletManagerServiceProvider extends ServiceProvider
     
     protected $adminMenu = [
         'admin.airwallet-accounts.index' => [
-            'route' => 'admin.airwallet-accounts.index',
+            'route' => '',
             'name' => 'Manage Airwallet',
             'icon' => '<i class="bi bi-wallet-fill"></i>',
             'className' => '',
-            'sortOrder' => 30,
-            'childrens' => [],
+            'sortOrder' => 12,
+            'childrens' => [
+                'admin.airwallet-accounts.index' => [
+                    'route' => 'admin.airwallet-accounts.index',
+                    'name' => 'Airwallet Accounts',
+                    'className' => 'mx-3',
+                ],
+                'admin.airwallet-money.index' => [
+                    'route' => 'admin.airwallet-money.index',
+                    'name' => 'Airwallet Money',
+                    'className' => 'mx-3',
+                ],
+
+            ],
         ]
     ];
 

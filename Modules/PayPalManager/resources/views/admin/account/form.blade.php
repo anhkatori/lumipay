@@ -80,24 +80,24 @@
             </div>
 
             <div class="row">
-                <div class="col-md-3">
+                <div class="{{ isset($paypalAccount->id) ? 'col-md-3' : 'd-none' }}">
                     <div class="form-group mb-3">
                         <label class="form-label" for="active_amount">Active Amount</label>
                         <input type="number" step="0.01"
                             class="form-control @error('active_amount')is-invalid @enderror" id="active_amount"
                             name="active_amount"
-                            value="{{ old('active_amount', isset($paypalAccount) ? $paypalAccount->active_amount : '') }}">
+                            value="{{ old('active_amount', isset($paypalAccount) ? $paypalAccount->active_amount : '0') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="{{ isset($paypalAccount->id) ? 'col-md-3' : 'd-none' }}">
                     <div class="form-group mb-3">
                         <label class="form-label" for="hold_amount">Hold Amount</label>
                         <input type="number" step="0.01" class="form-control @error('hold_amount')is-invalid @enderror"
                             id="hold_amount" name="hold_amount"
-                            value="{{ old('hold_amount', isset($paypalAccount) ? $paypalAccount->hold_amount : '') }}">
+                            value="{{ old('hold_amount', isset($paypalAccount) ? $paypalAccount->hold_amount : '0') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="{{ isset($paypalAccount->id) ? 'col-md-3' : 'col-md-6' }}">
                     <div class="form-group mb-3">
                         <label class="form-label" for="max_receive_amount">Max Receive Amount</label>
                         <input type="number" step="0.01"
@@ -106,7 +106,7 @@
                             value="{{ old('max_receive_amount', isset($paypalAccount) ? $paypalAccount->max_receive_amount : '') }}">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="{{ isset($paypalAccount->id) ? 'col-md-3' : 'col-md-6' }}">
                     <div class="form-group mb-3">
                         <label class="form-label" for="max_order_receive_amount">Max Order Amount</label>
                         <input type="number" step="0.01"

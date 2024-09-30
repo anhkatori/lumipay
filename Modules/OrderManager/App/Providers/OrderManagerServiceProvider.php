@@ -17,7 +17,7 @@ class OrderManagerServiceProvider extends ServiceProvider
             'name' => 'Orders',
             'icon' => '<i class="bi bi-cart"></i>',
             'className' => '',
-            'sortOrder' => 50,
+            'sortOrder' => 2,
             'childrens' => []
         ]
     ];

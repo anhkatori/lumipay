@@ -96,6 +96,11 @@
                 <td>String</td>
                 <td>Error message if status is error</td>
             </tr>
+            <tr>
+                <td>error</td>
+                <td>String</td>
+                <td>If status == error, return the payment method (PAYPAL | CREDIT_CARD | CREDIT_CARD_2)</td>
+            </tr>
         </tbody>
     </table>
 </div>

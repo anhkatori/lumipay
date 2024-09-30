@@ -39,23 +39,23 @@
             <tbody>
                 <tr>
                     <form action="{{ route('admin.blocked-ip.index') }}" method="GET">
-                        <td></td>
-                        <td>
+                        <td class="align-middle"></td>
+                        <td class="align-middle">
                             <input type="text" class="form-control" id="search_ip_ban" name="search_ip_ban"
                                 value="{{ request()->input('search_ip_ban') }}" placeholder="Search IP Ban">
                         </td>
-                        <td></td>
-                        <td>
+                        <td class="align-middle"></td>
+                        <td class="align-middle">
                             <button type="submit" class="btn btn-primary">Search</button>
                         </td>
                     </form>
                 </tr>
                 @foreach ($blockedIps as $blockedIp)
                     <tr>
-                        <td>{{ $blockedIp->id }}</td>
-                        <td>{{ $blockedIp->ip_ban }}</td>
-                        <td>{{ $blockedIp->sort_ip }}</td>
-                        <td>
+                        <td class="align-middle">{{ $blockedIp->id }}</td>
+                        <td class="align-middle">{{ $blockedIp->ip_ban }}</td>
+                        <td class="align-middle">{{ $blockedIp->sort_ip }}</td>
+                        <td class="align-middle">
                             <form action="{{ route('admin.blocked-ip.destroy', $blockedIp->id) }}" method="POST"
                                 style="display:inline-block;">
                                 @csrf

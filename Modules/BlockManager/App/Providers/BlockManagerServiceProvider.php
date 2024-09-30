@@ -12,24 +12,22 @@ class BlockManagerServiceProvider extends ServiceProvider
     protected string $moduleNameLower = 'blockmanager';
 
     protected $adminMenu = [
-        'admin.blockmanager.index' => [
+        'admin.blocked-email.index' => [
             'route' => '',
             'name' => 'Manage Block',
             'icon' => '<i class="bi bi-shield-lock"></i>',
             'className' => '',
-            'sortOrder' => 10,
+            'sortOrder' => 13,
             'childrens' => [
                 'blocked-email' => [
                     'route' => 'admin.blocked-email.index',
                     'name' => 'Blocked Email',
-                    'className' => 'mx-3',
-
+                    'className' => 'mx-3'
                 ],
                 'blocked-ip' => [
                     'route' => 'admin.blocked-ip.index',
                     'name' => 'Blocked IP',
-                    'className' => 'mx-3',
-
+                    'className' => 'mx-3'
                 ],
             ],
         ],

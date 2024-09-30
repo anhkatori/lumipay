@@ -5,6 +5,9 @@ namespace Modules\OrderManager\App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\OrderManager\Database\factories\OrderFactory;
+use Modules\AirwalletManager\App\Models\AirwalletAccount;
+use Modules\StripeManager\App\Models\StripeAccount;
+use Modules\PayPalManager\App\Models\PaypalAccount;
 
 class Order extends Model
 {
@@ -26,11 +29,26 @@ class Order extends Model
         'status',
         'method_account',
         'client_id',
-        'canceled'
+        'canceled',
+        'canceled',
+        'addtional'
     ];
 
     protected static function factory(): OrderFactory
     {
         return OrderFactory::new();
+    }
+    public function paypalAccount()
+    {
+        return $this->hasOne(PaypalAccount::class, 'id', 'method_account');
+    }
+
+    public function stripeAccount()
+    {
+        return $this->hasOne(StripeAccount::class, 'id', 'method_account');
+    }
+    public function airwalletAccount()
+    {
+        return $this->hasOne(AirwalletAccount::class, 'id', 'method_account');
     }
 }

@@ -11,6 +11,17 @@ class AuthServiceProvider extends ServiceProvider
 
     protected string $moduleNameLower = 'auth';
 
+    protected $adminMenu = [
+        'admin.blockmanager.index' => [
+            'route' => 'admin.logout',
+            'name' => 'Logout',
+            'icon' => '<i class="bi bi-box-arrow-in-left"></i>',
+            'className' => '',
+            'sortOrder' => 999,
+            'childrens' => [],
+        ],
+    ];
+    
     /**
      * Boot the application events.
      */
@@ -75,6 +86,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->publishes([module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower.'.php')], 'config');
         $this->mergeConfigFrom(module_path($this->moduleName, 'config/config.php'), $this->moduleNameLower);
+        $this->mergeConfigArray($this->adminMenu, 'admin-menu');
     }
 
     /**
@@ -99,6 +111,12 @@ class AuthServiceProvider extends ServiceProvider
     public function provides(): array
     {
         return [];
+    }
+
+    protected function mergeConfigArray($array, $key)
+    {
+        $config = $this->app['config']->get($key, []);
+        $this->app['config']->set($key, array_merge($array, $config));
     }
 
     private function getPublishableViewPaths(): array

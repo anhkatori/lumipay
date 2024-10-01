@@ -53,7 +53,6 @@
                     <th>Additional</th>
                     <th>Description</th>
                     <th>Method</th>
-                    <th>Additional</th>
                     <th>Status</th>
                     <th>Method Account</th>
                     <th>Action</th>
@@ -67,7 +66,7 @@
                                     <td class="align-middle">{{ $order->amount }}</td>
                                     <td class="align-middle">{{ $order->email }}</td>
                                     <td class="align-middle">{{ $order->ip }}</td>
-                                    <td class="align-middle">{{ $order->additional }}</td>
+                                    <td class="align-middle">{{ $order->addtional }}</td>
                                     <td class="align-middle">{{ $order->description }}</td>
                                     <td class="align-middle">
                                         {{ [
@@ -76,7 +75,6 @@
                         'CREDIT_CARD_2' => 'Airwallet',
                     ][$order->method] ?? 'Unknown' }}
                                     </td>
-                                    <td class="align-middle">{{ $order->addtional }}</td>
                                     <td class="align-middle">
                                         <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
                                             style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};

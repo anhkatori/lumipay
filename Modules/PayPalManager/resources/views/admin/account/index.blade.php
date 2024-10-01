@@ -10,7 +10,7 @@
 @endif
 <style>
     hr {
-        color: #c1c1c1;
+        color: #787878;
         width: 70%;
         text-align: center;
         margin: 10px auto;

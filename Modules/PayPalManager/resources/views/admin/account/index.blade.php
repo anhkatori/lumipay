@@ -8,6 +8,14 @@
         {{ session('success') }}
     </div>
 @endif
+<style>
+    hr {
+        color: #c1c1c1;
+        width: 70%;
+        text-align: center;
+        margin: 10px auto;
+    }
+</style>
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">PayPal Accounts</h3>
@@ -93,8 +101,12 @@
             <tbody>
                 @foreach ($paypalAccounts as $account)
                     <tr>
-                        <td class="align-middle">{{ $account->email }} | {{ utf8_decode($account->password) }}
-                            <hr> {{ $account->seller }} |
+                        <td class="align-middle">
+                            {{ $account->email }} 
+                            @if($account->password)| @endif 
+                            {{ utf8_decode($account->password) }}
+                            <hr> {{ $account->seller }}
+                            @if($account->proxy)| @endif
                             {{ $account->proxy }}
                         </td>
                         <td class="align-middle">{{ $account->domain_site_fake }}
@@ -102,7 +114,7 @@
                         </td>
                         <td class="align-middle">
                             <span class="badge {{ $account->domain_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ $account->domain_status ? '#4CAF50' : '#d9534f' }};
-                                     border-radius: 5px;">
+                                         border-radius: 5px;">
                                 {{ $account->domain_status ? 'ON' : 'OFF' }}
                             </span>
                         </td>
@@ -112,21 +124,25 @@
                         <td class="align-middle">{{ $account->max_order_receive_amount }}</td>
                         <td class="align-middle">
                             @if($account->status && $account->status->name == 'Work')
-                                <span class="badge" style="background-color: #4CAF50;border-radius: 5px;">{{ $account->status->name }}</span>
+                                <span class="badge"
+                                    style="background-color: #4CAF50;border-radius: 5px;">{{ $account->status->name }}</span>
                             @elseif($account->status && $account->status->name == 'Pending')
-                                <span class="badge" style="background-color: #4c8faf;border-radius: 5px;">{{ $account->status->name }}</span>
+                                <span class="badge"
+                                    style="background-color: #4c8faf;border-radius: 5px;">{{ $account->status->name }}</span>
                             @else
-                                <span class="badge" style="background-color: #d9534f;border-radius: 5px;">{{ $account->status->name }}</span>
+                                <span class="badge"
+                                    style="background-color: #d9534f;border-radius: 5px;">{{ $account->status->name }}</span>
                             @endif
                         </td>
                         <td class="align-middle">{{ $account->getPaymentMethod() }}</td>
                         <td class="align-middle">
                             <span class="badge {{ !$account->xmdt_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ !$account->xmdt_status ? '#4CAF50' : '#d9534f' }};
-                             border-radius: 5px;">
+                                 border-radius: 5px;">
                                 {{ !$account->xmdt_status ? 'OFF' : 'XMDT(' . floor(now()->diffInDays($account->xmdt_status)) . 'd)' }}
                             </span>
                         </td>
-                        <td class="align-middle">{{ $account->days_stopped ? floor(now()->diffInDays($account->days_stopped)) . ' days' : '' }}
+                        <td class="align-middle">
+                            {{ $account->days_stopped ? floor(now()->diffInDays($account->days_stopped)) . ' days' : '' }}
                         </td>
                         <td class="align-middle">
                             <div class="d-flex">

@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="ColorlibHQ">
     @vite('Modules/AdminTheme/resources/assets/sass/app.scss')
+    @vite('Modules/AdminTheme/resources/assets/js/app.js')
+    
+
 </head> <!--end::Head--> <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> <!--begin::App Wrapper-->
@@ -42,7 +45,7 @@
             </div>
         </main> <!--end::App Main--> <!--begin::Footer-->
     </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
-    @vite('Modules/AdminTheme/resources/assets/js/app.js')
+    
     @stack('scripts')
 </body><!--end::Body-->
 

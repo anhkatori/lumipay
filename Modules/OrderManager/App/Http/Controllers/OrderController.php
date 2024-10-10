@@ -91,7 +91,7 @@ class OrderController extends Controller
                 'status' => 'error',
                 'message' => 'Email or IP blocked!',
                 'payment_url' => '',
-                'error' => $params['method']
+                'error' => '2'
             ]);
         }
         if ($methodData = $this->isValidMethod($params, $client)) {
@@ -103,10 +103,10 @@ class OrderController extends Controller
                 $params['addtional'] .= $params['country_code'];
             }
             if (isset($params['country_name'])) {
-                $params['addtional'] .= '|' . $params['country_name'];
+                $params['addtional'] .= ' | ' . $params['country_name'];
             }
             if (isset($params['ips'])) {
-                $params['addtional'] .= '|' . $params['ips'];
+                $params['addtional'] .= ' | ' . $params['ips'];
             }
 
             $order = Order::where('client_id', $params['client_id'])
@@ -151,13 +151,20 @@ class OrderController extends Controller
                 default:
                     break;
             }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment not valid',
+                'payment_url' => '',
+                'error' => '1'
+            ]);
         }
 
         return response()->json([
             'status' => 'error',
             'message' => 'Payment not valid',
             'payment_url' => '',
-            'error' => $params['method']
+            'error' => '2'
         ]);
     }
     protected function isValidMethod($params, $client)

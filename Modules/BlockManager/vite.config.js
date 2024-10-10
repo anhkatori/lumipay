@@ -21,6 +21,6 @@
 // });
 
 export const paths = [
-   'Modules/$STUDLY_NAME$/resources/assets/sass/app.scss',
-   'Modules/$STUDLY_NAME$/resources/assets/js/app.js',
+   'Modules/BlockManager/resources/assets/sass/app.scss',
+   'Modules/BlockManager/resources/assets/js/app.js',
 ];

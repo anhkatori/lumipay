@@ -12,56 +12,69 @@ use Modules\PayPalManager\App\Models\PaypalMoney;
 use Modules\StripeManager\App\Models\StripeMoney;
 
 class DashboardController extends Controller
-{
+{   
+
+    public CONST CURRENCY_SYMBOL = '$';
+
     public function index()
     {
-        $daysOfWeek = $this->getDaysOfWeek();
-        $daysOfMonth = $this->getDaysOfMonth();
-        $daysOfYear = $this->getDaysOfYear();
+      
+        $daysOfWeek = $this->getDaysOfWeek(null);
+        $daysOfMonth = $this->getDaysOfMonth(null);
         $chartData = $this->getChartData($daysOfWeek);
         $chartData2 = $this->getChartData2($daysOfWeek);
-        return view('admintheme::dashboard.index', compact('chartData', 'chartData2', 'daysOfWeek', 'daysOfMonth', 'daysOfYear'));
+        $monthsOfYear = $this->getMonthsOfYear();
+        $currentDate = now();
+
+        return view('admintheme::dashboard.index', compact('chartData', 'chartData2', 'daysOfWeek', 'daysOfMonth', 'monthsOfYear', 'currentDate'));
     }
 
     public function getChartDataAjax(Request $request)
     {
         $dateRange = $request->input('dateRange');
         $method = $request->input('paymentMethod');
+
         $days = [];
 
         switch ($dateRange) {
             case 'week':
-                $days = $this->getDaysOfWeek();
+                $days = $this->getDaysOfWeek($request);
                 break;
             case 'month':
-                $days = $this->getDaysOfMonth();
+                $days = $this->getDaysOfMonth($request);
                 break;
             case 'year':
-                $days = $this->getDaysOfYear();
+                $days = $this->getMonthsOfYear($request);
                 break;
         }
 
-        $chartData1 = $this->getChartData($days, $method);
-        $chartData2 = $this->getChartData2($days, $method);
+        $chartData1 = $this->getChartData($days, $method, $dateRange);
+        $chartData2 = $this->getChartData2($days, $method, $dateRange);
 
         return response()->json(['chartData1' => $chartData1, 'chartData2' => $chartData2]);
     }
-    private function getChartData($days, $paymentMethod = null)
-    {
+
+    private function getChartData($timePeriod, $paymentMethod = null, $dateRange = 'week')
+    {   
+        $dataAmount = $this->getSumAmountData($timePeriod, $paymentMethod, $dateRange);
+
+        $dataCounter = $this->getCountRecordsData($timePeriod, $paymentMethod, $dateRange);
+
         $chartData = [
-            'labels' => $days,
+            'labels' => $timePeriod,
             'datasets' => [
                 [
                     'label' => 'Sum Amount',
-                    'data' => $this->getSumAmountData($days, $paymentMethod),
+                    'data' => $dataAmount,
                     'borderWidth' => 1,
                     'hoverBorderWidth' => 3,
                     'hoverBorderColor' => '#000',
-                    'yAxisID' => 'y-axis-1'
+                    'yAxisID' => 'y-axis-1',
+                    'color' => 'red'
                 ],
                 [
                     'label' => 'Count Orders',
-                    'data' => $this->getCountRecordsData($days, $paymentMethod),
+                    'data' => $dataCounter,
                     'type' => 'line',
                     'fill' => false,
                     'backgroundColor' => '#0099cc',
@@ -71,11 +84,13 @@ class DashboardController extends Controller
                 ]
             ]
         ];
+        
         return $chartData;
     }
-    private function getChartData2($days, $method = null)
+
+    private function getChartData2($days, $method = null, $dateRange = 'week')
     {
-        $data = $this->getSellData($days, $method);
+        $data = $this->getSellData($days, $method, $dateRange);
         switch ($method) {
             case 'PAYPAL':
                 $data = $this->getPayPalData($days, $method);
@@ -86,6 +101,7 @@ class DashboardController extends Controller
             case 'CREDIT_CARD_2':
                 $data = $this->getAirWalletData($days, $method);
                 break;
+
         }
         $chartData = [
             'labels' => $days,
@@ -103,16 +119,39 @@ class DashboardController extends Controller
         return $chartData;
     }
 
-    private function getSellData($days, $method)
+    private function getSellData($days, $method, $dateRange)
     {
+        $dateRange = $dateRange ?? 'week';
         $data = [];
-        foreach ($days as $day) {
-            $data[] = PayPalMoney::whereDate('created_at', $day)->sum('money') +
-                StripeMoney::whereDate('created_at', $day)->where('status','1')->sum('money') +
-                AirwalletMoney::whereDate('created_at', $day)->where('status','1')->sum('money');
+        if ($dateRange !== 'year') {
+            foreach ($days as $day) {
+                $data[] = PayPalMoney::whereDate('created_at', $day)->sum('money') +
+                    StripeMoney::whereDate('created_at', $day)->where('status','1')->sum('money') +
+                    AirwalletMoney::whereDate('created_at', $day)->where('status','1')->sum('money');
+            }
+        }   else {
+            $months = $days;
+            foreach ($months as $month) {
+                $ppMoney = PayPalMoney::whereDate('created_at', '>=', $month.'-01')
+                                ->whereDate('created_at', '<=', $month.'-31')
+                                ->sum('money');
+                $awMoney = AirwalletMoney::whereDate('created_at', '>=', $month.'-01')
+                                ->whereDate('created_at', '<=', $month.'-31')
+                                ->where('status','1')
+                                ->sum('money');
+                $stripeMoney = StripeMoney::whereDate('created_at', '>=', $month.'-01')
+                                ->whereDate('created_at', '<=', $month.'-31')
+                                ->where('status','1')
+                                ->sum('money');
+
+                $data[] = $ppMoney + $awMoney + $stripeMoney;
+                
+            }
         }
+        
         return $data;
     }
+
     private function getAirWalletData($days, $method)
     {
         $data = [];
@@ -143,76 +182,127 @@ class DashboardController extends Controller
     }
 
 
-    private function getSumAmountData($days, $paymentMethod)
+    private function getSumAmountData($timePeriod, $paymentMethod, $dateRange)
     {
         $data = [];
-        foreach ($days as $day) {
-            if ($paymentMethod === null) {
-                $data[] = Order::whereDate('created_at', $day)
-                    ->where('status', 'complete')->sum('amount');
-            } else {
-                $data[] = Order::whereDate('created_at', $day)
-                    ->where('method', $paymentMethod)
-                    ->where('status', 'complete')
-                    ->sum('amount');
+        if ($dateRange == 'year') {
+            $months = $timePeriod;
+
+            foreach ($months as $month) {
+                if ($paymentMethod === null) {
+                    $data[] = Order::whereDate('created_at', '>=', $month.'-01')
+                        ->whereDate('created_at', '<=', $month.'-31')
+                        ->where('status', 'complete')->sum('amount');
+
+                } else {
+                    $data[] = Order::where('method', $paymentMethod)
+                        ->where('status', 'complete')
+                        ->whereDate('created_at', '>=', $month.'-01')
+                        ->whereDate('created_at', '<=', $month.'-31')
+                        ->sum('amount');
+                }
+            }
+        }   else {
+            $days = $timePeriod;
+            
+            foreach ($days as $day) {
+                if ($paymentMethod === null) {
+                    $data[] = Order::whereDate('created_at', $day)
+                        ->where('status', 'complete')->sum('amount');
+                } else {
+                    $data[] = Order::whereDate('created_at', $day)
+                        ->where('method', $paymentMethod)
+                        ->where('status', 'complete')
+                        ->sum('amount');
+                }
+            }
+        }
+        
+        return $data;
+    }
+
+    private function getCountRecordsData($timePeriod, $paymentMethod, $dateRange)
+    {
+        $data = [];
+        if ($dateRange != 'year') {
+            $days = $timePeriod;
+            foreach ($days as $day) {
+                if ($paymentMethod === null) {
+                    $data[] = Order::whereDate('created_at', $day)
+                        ->where('status', 'complete')->count();
+                } else {
+                    $data[] = Order::whereDate('created_at', $day)
+                        ->where('method', $paymentMethod)
+                        ->where('status', 'complete')
+                        ->count();
+                }
+            }
+        }   else {
+            $months = $timePeriod;
+
+            foreach ($months as $month) {
+                if ($paymentMethod === null) {
+                    $data[] = Order::whereDate('created_at', '>=', $month.'-01')
+                        ->whereDate('created_at', '<=', $month.'-31')
+                        ->where('status', 'complete')->count();
+                } else {
+                    $data[] = Order::whereDate('created_at', '>=', $month.'-01')
+                        ->whereDate('created_at', '<=', $month.'-31')
+                        ->where('method', $paymentMethod)
+                        ->where('status', 'complete')
+                        ->count();
+                }
             }
         }
         return $data;
     }
 
-    private function getCountRecordsData($days, $paymentMethod)
+    private function getDaysOfWeek($request = null)
     {
-        $data = [];
-        foreach ($days as $day) {
-            if ($paymentMethod === null) {
-                $data[] = Order::whereDate('created_at', $day)
-                    ->where('status', 'complete')->count();
-            } else {
-                $data[] = Order::whereDate('created_at', $day)
-                    ->where('method', $paymentMethod)
-                    ->where('status', 'complete')
-                    ->count();
-            }
+        if (!$request) {
+            $startDate = now();
+        }   else {
+            $startDate = \date_create_from_format("d-m-Y", $request->input('startDate'));
         }
-        return $data;
-    }
 
-    private function getDaysOfWeek()
-    {
-        $currentDate = new DateTime();
         $daysOfWeek = [];
-        $currentDate = now()->startOfWeek();
         for ($i = 0; $i < 7; $i++) {
-            $daysOfWeek[] = $currentDate->format('Y-m-d');
-            $currentDate->addDay();
+            $daysOfWeek[] = $startDate->format('Y-m-d');
+            $startDate->modify('+1 day');
         }
         return $daysOfWeek;
     }
 
-    private function getDaysOfMonth()
+    private function getDaysOfMonth($request = null)
     {
-        $currentDate = new DateTime();
+        if (empty($request)) {
+            $date = now();
+        }   else {
+            $date = \date_create_from_format("m-Y", $request->input('month'));
+        }
+
         $daysOfMonth = [];
-        $currentDate = now();
-        $lastDayOfMonth = $currentDate->endOfMonth()->day;
-        for ($i = 1; $i <= $lastDayOfMonth; $i++) {
-            $daysOfMonth[] = $currentDate->format('Y-m-') . $i;
+        $lastDayOfMonth = $date->modify('last day of this month');
+        for ($i = 1; $i <= $lastDayOfMonth->format('d'); $i++) {
+            $daysOfMonth[] = $date->format('Y-m-') . $i;
         }
         return $daysOfMonth;
     }
 
-    private function getDaysOfYear()
+    private function getMonthsOfYear($request = null)
     {
-        $currentDate = new DateTime();
-        $daysOfYear = [];
-        $currentDate = Carbon::now();
-        $startOfYear = $currentDate->copy()->startOfYear();
-        $endOfYear = $currentDate->copy()->endOfYear();
-        while ($startOfYear->lte($endOfYear)) {
-            $daysOfYear[] = $startOfYear->format('Y-m-d');
-            $startOfYear->addDay();
+        if (empty($request)) {
+            $year = date("Y");
+        }   else {
+            $year =  $request->input('year');
         }
-        return $daysOfYear;
-    }
+        
+        $months = [];
+        for ($i=1; $i<=12 ; $i++) { 
+            // as an year always has 12 months
+            $months[] =  $year . '-' . $i ;
+        }
 
+        return $months;
+    }
 }

@@ -21,6 +21,6 @@ export default defineConfig({
 });
 
 //export const paths = [
-//    'Modules/$STUDLY_NAME$/resources/assets/sass/app.scss',
-//    'Modules/$STUDLY_NAME$/resources/assets/js/app.js',
+//    'Modules/OrderManager/resources/assets/sass/app.scss',
+//    'Modules/OrderManager/resources/assets/js/app.js',
 //];

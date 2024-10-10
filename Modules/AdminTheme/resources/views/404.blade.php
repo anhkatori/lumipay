@@ -12,6 +12,10 @@
         Meanwhile, you may <a href="{{route('admin.dashboard.index')}}">return to dashboard</a> or try using the search form.
         </p>
     </div>
-
+<input value='aaa' id="test" hidden>
 </div>
+<script  type="module">
+    console.log($('#test').val());
+</script>
+
 @endsection

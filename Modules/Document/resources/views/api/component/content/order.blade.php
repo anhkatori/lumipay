@@ -99,7 +99,7 @@
             <tr>
                 <td>error</td>
                 <td>String</td>
-                <td>If status == error, return the payment method (PAYPAL | CREDIT_CARD | CREDIT_CARD_2)</td>
+                <td>Error code ('1' if no method available, '2' if other errors)</td>
             </tr>
         </tbody>
     </table>

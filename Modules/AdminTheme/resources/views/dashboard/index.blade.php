@@ -54,20 +54,20 @@
                             <div class="col-sm-6 d-flex align-items-center" style="width: max-content">
                                 <label for="chart-type">Choose time frame:</label>
                             </div>
-                            <input id="time-picker" value="<?= $currentDate->format('d-m-Y') ?>" class="form-control" />
+                            <input id="time-picker" value="{{ $currentDate->format('d-m-Y') }}" class="form-control" />
                             <div class="range-selector">
                                 <div class="week-selector time-selecter-wrap">
-                                    <label>Week:</label> <span id="startDate"><?= $currentDate->format('d-m-Y') ?></span> -> <span id="endDate"><?= $currentDate->modify('+ 1 week')->format('d-m-Y') ?></span>
-                                    <input type="hidden" value="<?= $currentDate->format('d-m-Y') ?>" name="startDate" />
+                                    <label>Week:</label> <span id="startDate">{{ $currentDate->format('d-m-Y') }}</span> -> <span id="endDate">{{ $currentDate->modify('+ 1 week')->format('d-m-Y') }}</span>
+                                    <input type="hidden" value="{{ $currentDate->format('d-m-Y') }}" name="startDate" />
                                     <input type="hidden" value="" name="endDate" />
                                 </div>
                                 <div class="month-selector time-selecter-wrap" style="display:none">
-                                    <label>Month:</label> <span id="month"> <?= $currentDate->format('m-Y') ?></span>
-                                    <input type="hidden" value="<?= $currentDate->format('m-Y') ?>" name="month" />
+                                    <label>Month:</label> <span id="month"> {{ $currentDate->format('m-Y') }}</span>
+                                    <input type="hidden" value="{{ $currentDate->format('m-Y') }}" name="month" />
                                 </div>
                                 <div class="year-selector time-selecter-wrap" style="display:none">
-                                    <label>Year:</label> <span id="year"><?= $currentDate->format('Y') ?></span>
-                                    <input type="hidden" value="<?= $currentDate->format('Y') ?>" name="year" />
+                                    <label>Year:</label> <span id="year">{{ $currentDate->format('Y') }}</span>
+                                    <input type="hidden" value="{{ $currentDate->format('Y') }}" name="year" />
                                 </div>
                             </div>
                         </div>

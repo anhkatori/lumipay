@@ -16,14 +16,14 @@ class DashboardController extends Controller
 
     public CONST CURRENCY_SYMBOL = '$';
 
-    public function index()
+    public function index(Request $request)
     {
       
-        $daysOfWeek = $this->getDaysOfWeek(null);
-        $daysOfMonth = $this->getDaysOfMonth(null);
+        $daysOfWeek = $this->getDaysOfWeek($request);
+        $daysOfMonth = $this->getDaysOfMonth($request);
         $chartData = $this->getChartData($daysOfWeek);
         $chartData2 = $this->getChartData2($daysOfWeek);
-        $monthsOfYear = $this->getMonthsOfYear();
+        $monthsOfYear = $this->getMonthsOfYear($request);
         $currentDate = now();
 
         return view('admintheme::dashboard.index', compact('chartData', 'chartData2', 'daysOfWeek', 'daysOfMonth', 'monthsOfYear', 'currentDate'));
@@ -259,7 +259,7 @@ class DashboardController extends Controller
 
     private function getDaysOfWeek($request = null)
     {
-        if (!$request) {
+        if (empty($request->input('startDate'))) {
             $startDate = now();
         }   else {
             $startDate = \date_create_from_format("d-m-Y", $request->input('startDate'));
@@ -275,7 +275,7 @@ class DashboardController extends Controller
 
     private function getDaysOfMonth($request = null)
     {
-        if (empty($request)) {
+        if (empty($request->input('month'))) {
             $date = now();
         }   else {
             $date = \date_create_from_format("m-Y", $request->input('month'));

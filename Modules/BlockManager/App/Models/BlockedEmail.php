@@ -12,9 +12,6 @@ class BlockedEmail extends Model
     protected $fillable = [
         'email',
         'name',
-        'money_account',
-        'money_bonus',
-        'status_lock',
         'status_delete'
     ];
 

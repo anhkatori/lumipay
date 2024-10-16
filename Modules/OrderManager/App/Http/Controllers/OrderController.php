@@ -14,6 +14,8 @@ use Modules\BlockManager\App\Models\BlockedEmail;
 use Illuminate\Support\Facades\Log;
 use \Carbon\Carbon;
 use Log as Log2;
+
+
 class OrderController extends Controller
 {
     /**
@@ -26,9 +28,13 @@ class OrderController extends Controller
 
         $orders = Order::when($request->get('request_id'), function ($query) use ($request) {
             $query->where('request_id', 'like', '%' . $request->get('request_id') . '%');
+
         })
             ->when($request->get('email'), function ($query) use ($request) {
                 $query->where('email', 'like', '%' . $request->get('email') . '%');
+            })
+            ->when($request->get('status'), function ($query) use ($request) {
+                $query->where('status', $request->get('status'));
             })
             ->when($request->get('method_account'), function ($query) use ($request) {
                 $query->where(function ($query) use ($request) {
@@ -50,7 +56,19 @@ class OrderController extends Controller
             ->orderBy('id', 'desc')
             ->paginate($limit);
 
-        return view('ordermanager::admin.index', compact('orders'));
+       $availableStatuses = $this->getAvailableStatuses();
+        
+        return view('ordermanager::admin.index', compact('orders', 'availableStatuses'));
+    }
+
+    protected function getAvailableStatuses()
+    {
+        $result = [];
+        $dbQueries = \DB::table('orders')->distinct()->get(['status']);
+        foreach ($dbQueries as $record) {
+            $result[] =$record->status;
+        }
+        return $result;
     }
 
     /**
@@ -64,6 +82,40 @@ class OrderController extends Controller
             return redirect()->route('admin.ordermanager.index')->with('success', 'Order deleted successfully.');
         } else {
             return redirect()->route('admin.ordermanager.index')->with('error', 'Order not found.');
+        }
+    }
+
+    /**
+     * Remove the specified order from storage.
+     */
+    public function dispute($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            $email = $order->email;
+            $ip = $order->ip;
+            $blockedIp = BlockedIp::where('ip_ban', $ip)->first();
+            $blockedEmail = BlockedEmail::where('email', $email)->first();
+
+            if (!$blockedIp) {
+                BlockedIp::create(
+                    [
+                        'ip_ban' => $ip, 
+                        'sort_ip' => substr($ip, 0, strrpos($ip, '.'))
+                    
+                    ]);
+            }
+            if (!$blockedEmail) {
+                BlockedEmail::create([
+                    'email' => $email, 
+                    'name' => '', 
+                    'status_delete' => '0'
+                ]);
+            }
+
+            return redirect()->route('admin.ordermanager.index')->with('success', 'This email and IP have been blocked.');
+        } else {
+            // return redirect()->route('admin.ordermanager.index')->with('error', 'Order not found.');
         }
     }
 
@@ -118,38 +170,118 @@ class OrderController extends Controller
             }
 
             $signature = $this->generateSignatureToCheckWhenUpdate((string) $client->private_key, (string) $order['id']);
+            $paymentType = 'site_fake';
             switch ($params['method']) {
                 case 'PAYPAL':
                     $methodData->days_stopped = Carbon::now();
                     $methodData->save();
                     $orderCode = base64_encode($order['id'] . "-" . "12345" . "-" . url('/') . "-" . $order['amount'] . "-" . date(format: "Y/m/d H:i:s") . "-" . $signature);
+                    $url =  $methodData['domain_site_fake'] . "?wc-ajax=tpaypal&hash=" . $orderCode;
+                    if ($methodData->payment_method == 'invoice') {
+                        $paymentType = 'invoice';
+                        $base_url = 'https://api-m.sandbox.paypal.com';
+                        $curl = curl_init();
+                        curl_setopt_array($curl, [
+                            CURLOPT_URL => $base_url."/v1/oauth2/token",
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => "",
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => "POST",
+                            CURLOPT_USERPWD => $methodData->client_key.":".$methodData->secret_key,
+                            CURLOPT_POSTFIELDS => "grant_type=client_credentials",
+                            CURLOPT_HTTPHEADER => [
+                                "Accept: application/json",
+                                "Accept-Language: en_US"
+                            ],
+                        ]);
+
+                        $result= curl_exec($curl);
+                        $result=json_decode($result, true); 
+                        $token=$result['access_token'];
+
+                        $data = [
+                            "detail" => (object) [
+                                "invoice_date" => date(format: "Y-m-d"),
+                                "currency_code" => "USD",
+                                "reference" => 'Order #'.$params['request_id'],
+                                "note" => $params['description']
+                            ],
+                            'primary_recipients' => [
+                                [
+                                    'billing_info' => (object) [
+                                        'email_address' => $params['email']
+                                    ]
+                                ]                                
+                            ],
+                            "items" => [
+                                [
+                                    "name" => "Yoga Mat",
+                                    "description" => "Elastic mat to practice yoga.",
+                                    "quantity" => "1",
+                                    "unit_amount" => (object) [
+                                        "currency_code" => "USD",
+                                        "value" => $params['amount']
+                                    ],
+                                    "unit_of_measure" => "QUANTITY"
+                                ]
+                            ]
+                        ];
+                        // var_dump(json_encode($data));die;
+                        
+                        $curl = curl_init($base_url."/v2/invoicing/invoices");
+                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+                            "Content-Type: application/json",
+                            "Authorization: Bearer " . $token
+                        ]);
+
+                        $result = curl_exec($curl);
+                        $result=json_decode($result, true); 
+                        $curl = curl_init($result['href'].'/send');
+                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
+                            "subject"=> "<The subject of the email that is sent as a notification to the recipient.>",
+                            "note" => "<A note to the payer.>",
+                            'send_to_recipient' => true
+                        ]));
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+                            "Content-Type: application/json",
+                            "Authorization: Bearer " . $token
+                        ]);
+                        $result = curl_exec($curl);
+                        $result=json_decode($result, true); 
+                        $url = $result['href'];
+                    }
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
-                        'payment_url' => $methodData['domain_site_fake'] . "?wc-ajax=tpaypal&hash=" . $orderCode,
+                        'payment_url' => $url,
+                        'payment_type' => $paymentType,
                         'error' => ''
                     ]);
-                    break;
                 case 'CREDIT_CARD':
                     $orderCode = base64_encode($order['id'] . "-" . "12345" . "-" . url('/') . "-" . $order['amount'] . "-" . date(format: "Y/m/d H:i:s") . "-" . $params['email'] . "-" . $signature);
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
                         'payment_url' => $methodData['domain'] . "?wc-ajax=stripe_redirect&hash=" . $orderCode,
+                        'payment_type' => $paymentType,
                         'error' => ''
                     ]);
-                    break;
                 case 'CREDIT_CARD_2':
                     $orderCode = base64_encode($order['id'] . "-" . "12345" . "-" . url('/') . "-" . $order['amount'] . "-" . date(format: "Y/m/d H:i:s") . "-" . $params['email'] . "-" . $signature);
                     return response()->json([
                         'status' => 'success',
                         'message' => '',
                         'payment_url' => $methodData['domain'] . "?wc-ajax=visa_magento_redirect&hash=" . $orderCode,
+                        'payment_type' => $paymentType,
                         'error' => ''
                     ]);
-                    break;
-                default:
-                    break;
             }
         } else {
             return response()->json([
@@ -171,48 +303,42 @@ class OrderController extends Controller
     {
         if ($params['method'] && $params['method'] == 'PAYPAL') {
             $accounts = $client->paypalAccounts;
-            // var_dump($accounts->count()); die;
             $filteredAccounts = $accounts->filter(function ($account) use ($params) {
                 return
-                    $account->domain_status == '1' &&
                     $account->status_id == '1' &&
-                    $account->payment_method == 'site_fake' &&
-                    $account->xmdt_status == null &&
-                    $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
+                    $params['amount'] <= $account->max_order_receive_amount &&
+                    $account->max_receive_amount >= ($params['amount'] + $account->current_amount);
             });
-            // var_dump($filteredAccounts->count()); die;
-            if ($filteredAccounts->count() > 0) {
-                $randomAccount = $filteredAccounts->random();
-                return $randomAccount;
-            }
-            return false;
         }
         if ($params['method'] && $params['method'] == 'CREDIT_CARD') {
             $accounts = $client->stripeAccounts;
             $filteredAccounts = $accounts->filter(function ($account) use ($params) {
                 return
                     $account->status == '1' &&
-                    $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
+                    $params['amount'] <= $account->max_order_receive_amount &&
+                    $account->max_receive_amount >= ($params['amount'] + $account->current_amount);
             });
-            if ($filteredAccounts->count() > 0) {
-                $randomAccount = $filteredAccounts->random();
-                return $randomAccount;
-            }
-            return false;
         }
         if ($params['method'] && $params['method'] == 'CREDIT_CARD_2') {
+            
             $accounts = $client->airwalletAccounts;
-            $randomAccount = $accounts->random();
             $filteredAccounts = $accounts->filter(function ($account) use ($params) {
                 return
                     $account->status == '1' &&
-                    $params['amount'] <= min($account->max_order_receive_amount, $account->max_receive_amount);
+                    $params['amount'] <= $account->max_order_receive_amount &&
+                    $account->max_receive_amount >= ($params['amount'] + $account->current_amount);
             });
-            if ($filteredAccounts->count() > 0) {
-                $randomAccount = $filteredAccounts->random();
-                return $randomAccount;
+        }
+        
+        if ($filteredAccounts->count() > 0) {
+            $accounts = [];
+            foreach ($filteredAccounts as $account) {
+                $accounts[$account->max_order_receive_amount][] = $account;
             }
-            return false;
+            ksort($accounts);
+            $accounts = reset($accounts);
+            $int = rand(0,count($accounts)-1);
+            return $accounts[$int] ? : $accounts[0];
         }
         return false;
     }
@@ -275,7 +401,7 @@ class OrderController extends Controller
                 ],
                 "signature" => $signature
             );
-            $ch = curl_init("https://takepremium.com/tpay/ipn");
+            $ch = curl_init($order->notify_url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($orderData));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -327,16 +453,23 @@ class OrderController extends Controller
     public function checkBlockedIpAndEmail($ip = null, $email = null)
     {
         $blockedIp = BlockedIp::where('ip_ban', $ip)->first();
-        $blockedEmail = BlockedEmail::where('email', $email)->first();
+        $sortIp = substr($ip, 0, strrpos($ip, '.'));
+        $blockedIp = BlockedIp::where('ip_ban', $ip)
+                                ->orWhere('sort_ip', $sortIp) 
+                                ->first();    
+                                
+        $blockedEmail = BlockedEmail::where('email', $email)->where('status_delete', '0')->first();
 
         if ($blockedIp || $blockedEmail) {
             if ($blockedEmail && !$blockedIp) {
                 BlockedIp::create(['ip_ban' => $ip, 'sort_ip' => '']);
             } elseif ($blockedIp && !$blockedEmail) {
-                BlockedEmail::create(['email' => $email, 'name' => '', 'money_account' => '0', 'money_bonus' => '0', 'status_lock' => '1', 'status_delete' => '0']);
+                BlockedEmail::create(['email' => $email, 'name' => '', 'status_delete' => '0']);
             }
             return false;
         }
+
+
         return true;
     }
 }

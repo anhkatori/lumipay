@@ -45,9 +45,6 @@
                     <th>Id</th>
                     <th>Email</th>
                     <th>Name</th>
-                    <th>Money Account</th>
-                    <th>Money Bonus</th>
-                    <th>Status Lock</th>
                     <th>Status Delete</th>
                     <th>Actions</th>
                 </tr>
@@ -58,20 +55,12 @@
                         <td class="align-middle">{{ $blockedEmail->id }}</td>
                         <td class="align-middle">{{ $blockedEmail->email }}</td>
                         <td class="align-middle">{{ $blockedEmail->name }}</td>
-                        <td class="align-middle">{{ $blockedEmail->money_account }}</td>
-                        <td class="align-middle">{{ $blockedEmail->money_bonus }}</td>
-                        <td class="align-middle">
-                            <span class="badge {{ $blockedEmail->status_lock == 1 ? 'badge-success' : 'badge-danger' }}"
-                                style="background-color: {{ $blockedEmail->status_lock == 1 ? '#d9534f' : '#4CAF50' }};
-                                            border-radius: 5px;">
-                                {{ $blockedEmail->status_lock == 1 ? 'Locked' : 'Not Locked' }}
-                            </span>
-                        </td>
+                        
                         <td class="align-middle">
                             <span class="badge {{ $blockedEmail->status_delete == 0 ? 'badge-success' : 'badge-danger' }}"
                                 style="background-color: {{ $blockedEmail->status_delete == 0 ? '#d9534f' : '#4CAF50' }};
                                             border-radius: 5px;">
-                                {{ $blockedEmail->status_delete == 0 ? 'None' : 'Okie' }}
+                                {{ $blockedEmail->status_delete == 0 ? 'Deleted' : 'Ok' }}
                             </span>
                         </td>
                         <td class="align-middle">
@@ -82,6 +71,25 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+
+                            <form method="POST" style="display: inline-block"
+                                @if ($blockedEmail->status_delete == 0)
+                                    action="{{ route('admin.blocked-email.unblock', $blockedEmail->id) }}"
+                                @else
+                                    action="{{ route('admin.blocked-email.block', $blockedEmail->id) }}"
+                                @endif
+                                
+                                >
+                                @method('POST')
+                                @if ($blockedEmail->status_delete == 0)
+                                     <button type="submit" class="btn btn-primary">Block</button>   
+                                @else
+                                    <button type="submit" class="btn btn-danger">Unblock</button>
+                                @endif
+
+                                @csrf
+
                             </form>
                         </td>
                     </tr>

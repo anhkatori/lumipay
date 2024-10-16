@@ -16,4 +16,5 @@ use Modules\OrderManager\App\Http\Controllers\OrderController;
 
 Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::resource('ordermanager', OrderController::class);
+    Route::post('ordermanager/{order}/dispute', 'OrderController@dispute')->name('ordermanager.dispute');
 });

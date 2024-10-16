@@ -16,25 +16,44 @@
         </div>
     </div>
     <div class="card-body text-center overflow-auto">
-        <div id="search-form" style="display: none;margin-bottom: 20px">
+        <div id="search-form" style="margin-bottom: 20px">
             <form action="" method="GET">
                 <div class="row">
                     <div class="row">
-                        <div class="col-md-3">
-                            <label style="float:left" for="request_id">Request Id:</label>
+
+                        <div class="col-md-2">
+                            <label style="float:left" for="request_id">Order Id:</label>
                             <input type="text" name="request_id" class="form-control"
                                 value="{{ request()->get('request_id') }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label style="float:left" for="email">Email:</label>
                             <input type="text" name="email" class="form-control" value="{{ request()->get('email') }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label style="float:left" for="method_account">Method Account:</label>
                             <input type="text" name="method_account" class="form-control"
                                 value="{{ request()->get('method_account') }}">
                         </div>
-                        <div class="col-md-3" style="text-align:left">
+                        <div class="col-md-2">
+                            <label style="float:left" for="status">Status:</label>
+                            <select class="form-control" name="status">
+                                @foreach ($availableStatuses as $status)
+                                    <option 
+                                        @if (request()->get('status') === $status) 
+                                            selected
+                                        @endif 
+                                        value="{{$status}}"
+                                    >
+                                    @php
+                                        echo ucfirst($status)
+                                    @endphp 
+                                    </option>
+                                @endforeach
+                            </select>
+                            
+                        </div>
+                        <div class="col-md-4" style="text-align:left">
                             <button type="submit" class="btn btn-primary pull-right"
                                 style="margin-top:23px">Search</button>
                         </div>
@@ -46,16 +65,14 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Request ID</th>
+                    <th>Order ID</th>
                     <th>Amount</th>
                     <th>Email</th>
                     <th>IP</th>
-                    <th>Additional</th>
-                    <th>Description</th>
                     <th>Method</th>
-                    <th>Status</th>
                     <th>Method Account</th>
                     <th>Action</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,11 +80,9 @@
                                 <tr>
                                     <td class="align-middle">{{ $order->id }}</td>
                                     <td class="align-middle">{{ $order->request_id }}</td>
-                                    <td class="align-middle">{{ $order->amount }}</td>
+                                    <td class="align-middle">{{ round($order->amount, 2) }}$</td>
                                     <td class="align-middle">{{ $order->email }}</td>
                                     <td class="align-middle">{{ $order->ip }}</td>
-                                    <td class="align-middle">{{ $order->addtional }}</td>
-                                    <td class="align-middle">{{ $order->description }}</td>
                                     <td class="align-middle">
                                         {{ [
                         'PAYPAL' => 'Paypal',
@@ -75,13 +90,7 @@
                         'CREDIT_CARD_2' => 'Airwallet',
                     ][$order->method] ?? 'Unknown' }}
                                     </td>
-                                    <td class="align-middle">
-                                        <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
-                                            style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
-                                                                            border-radius: 5px;">
-                                            {{ $order->status}}
-                                        </span>
-                                    </td>
+                                    
                                     <td class="align-middle">
                                         @if($order->method == 'PAYPAL')
                                             {{ $order->paypalAccount->email ?? '' }}
@@ -93,21 +102,128 @@
                                             {{ $order->method_account }}
                                         @endif
                                     </td>
-                                    <td class="align-middle">
-                                        <div>
-                                            <form action="{{ route('admin.ordermanager.destroy', $order->id) }}" method="POST"
-                                                style="display:inline-block;">
+                                    <td class="align-middle row">
+                                        
+                                            <form class="col-sm-4" action="{{ route('admin.ordermanager.destroy', $order->id) }}" method="POST"
+                                                style="display:inline-flex;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="remove-item btn btn-danger">Delete</button>
                                             </form>
+                                            <form class="col-sm-4" action="{{ route('admin.ordermanager.dispute', $order->id) }}" method="POST"
+                                                style="display:inline-flex;">
+                                                @csrf
+                                                @method('POST')
+                                                <button type="submit" class="dispute-item btn btn-warning">Dispute</button>
+                                            </form>
+                                            <div class="col-sm-4" style="display:inline-flex;">
+                                                <button type="button" class="view-btn btn btn-primary" data-bs-toggle="modal" data-bs-target="#popup-order-{{ $order->id }}">
+                                                    View
+                                                </button>
+                                            </div>
                                         </div>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
+                                            style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
+                                                                            border-radius: 5px;">
+                                            {{ $order->status}}
+                                        </span>
                                     </td>
                                 </tr>
                 @endforeach
             </tbody>
 
         </table>
+
+        
+        @foreach ($orders as $order)
+        <div class="modal fade" id="popup-order-{{ $order->id }}" tabindex="-1" aria-labelledby="View Order" aria-hidden="true">
+            <div class="modal-dialog">
+                <table class="table table-bordered table-hover table-popup"  >
+                    <thead>
+                        <tr><td colspan="2"><h4>Order details</h4></td></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th>ID</th>
+                            <td class="align-middle">{{ $order->id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Order ID</th>
+                            <td class="align-middle">{{ $order->request_id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Amount</th>
+                            <td class="align-middle">{{ round($order->amount, 2) }}$</td> 
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td class="align-middle">{{ $order->email }}</td>
+                        </tr>
+                        <tr>
+                            <th>IP</th>
+                            <td class="align-middle">{{ $order->ip }}</td>
+                        </tr>
+                        <tr>
+                            <th>Additional</th>
+                            <td class="align-middle">{{ $order->addtional }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td class="align-middle">{{ $order->description }}</td>
+                        </tr>
+                        <tr>
+                            <th>Method</th>
+                            <td class="align-middle">
+                                {{ [
+                'PAYPAL' => 'Paypal',
+                'CREDIT_CARD' => 'Stripe',
+                'CREDIT_CARD_2' => 'Airwallet',
+            ][$order->method] ?? 'Unknown' }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Method Account</th>
+                            <td class="align-middle">
+                                @if($order->method == 'PAYPAL')
+                                    {{ $order->paypalAccount->email ?? '' }}
+                                @elseif($order->method == 'CREDIT_CARD')
+                                    {{ $order->stripeAccount->domain ?? '' }}
+                                @elseif($order->method == 'CREDIT_CARD_2')
+                                    {{ $order->airwalletAccount->domain ?? '' }}
+                                @else
+                                    {{ $order->method_account }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td class="align-middle">
+                                <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
+                                    style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
+                                                                    border-radius: 5px;">
+                                    {{ $order->status}}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date</th>
+                            <td class="align-middle">
+                                {{(new DateTime($order->created_at))->format('d-m-Y H:i');}}
+                             
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan=2 >
+                                <button type="button" class="col-sm-4 close-item btn btn-primary">Close</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endforeach
     </div>
     <div class="card-footer clearfix">
         {{$orders->links('admintheme::layouts.pagination')}}
@@ -116,12 +232,14 @@
 @endsection
 @push('scripts')
     <script type="text/javascript">
+
+        
         document.addEventListener("DOMContentLoaded", (event) => {
             $('.remove-item').on('click', function () {
                 return confirm('Are you sure?');
             })
             $('#toggle-search-form').on('click', function () {
-                $('#search-form').slideToggle(500);
+                $('#search-form').slideToggle(300);
             });
             var form = $('#search-form');
             var inputs = form.find('input, select');
@@ -132,6 +250,12 @@
                     return false;
                 }
             });
+
+            $('.view-btn').on('click', function() {
+                let id = $(this).data('bs-target');
+                    $(id).toggleClass('show')
+            })
         });
     </script>
+
 @endpush

@@ -1,11 +1,8 @@
-
-
-import 'bootstrap';
-import 'admin-lte';
-
 import './overlayscrollbars';
 import $ from 'jquery';
 window.$ = window.jQuery = $;
+import 'bootstrap';
+import 'admin-lte';
 
 import('jquery-ui/ui/widgets/datepicker.js').then(() => {
 	$( function() {
@@ -61,6 +58,10 @@ import('jquery-ui/ui/widgets/datepicker.js').then(() => {
 	    
 	    $('#time-picker .ui-datepicker-calendar tr').on('mousemove', function() { $(this).find('td a').addClass('ui-state-hover'); });
 	    $('#time-picker .ui-datepicker-calendar tr').on('mouseleave', function() { $(this).find('td a').removeClass('ui-state-hover'); });
+
+
+
+	    
   	});
 });
 

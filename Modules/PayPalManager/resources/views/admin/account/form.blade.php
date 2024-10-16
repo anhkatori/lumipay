@@ -2,6 +2,11 @@
 
 @section('title', isset($paypalAccount) ? 'Edit PayPal Account' : 'Create PayPal Account')
 @section('content')
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 @if($errors->any())
     @foreach ($errors->all() as $error)
         <div class="alert alert-danger mx-3">{{$error}}</div>
@@ -10,7 +15,7 @@
 
 <div class="card m-3">
     <div class="card-header px-5">
-        <a href="{{url()->previous()}}" class="btn float-end btn-danger"> Back</a>
+        <a href="{{ route('admin.paypal-accounts.index') }}" class="btn float-end btn-danger"> Back</a>
     </div>
     <form
         action="{{ isset($paypalAccount) ? route('admin.paypal-accounts.update', $paypalAccount->id) : route('admin.paypal-accounts.store') }}"
@@ -35,6 +40,25 @@
                         <input type="text" class="form-control @error('password')is-invalid @enderror" id="password"
                             name="password"
                             value="{{ old('password', isset($paypalAccount) ? utf8_decode($paypalAccount->password) : '') }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="email">PayPal Client Key</label>
+                        <input type="text" class="form-control @error('proxy')is-invalid @enderror" id="client_key"
+                            name="client_key"
+                            value="{{ old('client_key', isset($paypalAccount) ? $paypalAccount->client_key : '') }}">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="password">PayPal Secret Key</label>
+                        <input type="text" class="form-control @error('proxy')is-invalid @enderror" id="secret_key"
+                            name="secret_key"
+                            value="{{ old('secret_key', isset($paypalAccount) ? $paypalAccount->secret_key : '') }}">
                     </div>
                 </div>
             </div>

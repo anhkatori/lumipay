@@ -23,8 +23,6 @@
                         <th>Name</th>
                         <th>User Name</th>
                         <th>Email</th>
-                        <th>Phone</th>
-                        <th>Address</th>
                         <th>Merchant ID</th>
                         <th>Private key</th>
                         <th>Action</th>
@@ -37,8 +35,6 @@
                             <td class="align-middle">{{ $account->name }}</td>
                             <td class="align-middle">{{ $account->username }}</td>
                             <td class="align-middle">{{ $account->email }}</td>
-                            <td class="align-middle">{{ $account->phone }}</td>
-                            <td class="align-middle">{{ $account->address }}</td>
                             <td class="align-middle">{{ $account->merchant_id }}</td>
                             <td class="align-middle">{{ $account->private_key }}</td>
                             <td class="align-middle">

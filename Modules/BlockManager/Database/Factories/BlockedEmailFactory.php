@@ -19,9 +19,6 @@ class BlockedEmailFactory extends Factory
         return [
             'email' => $this->faker->unique()->safeEmail,
             'name' => $this->faker->name,
-            'money_account' => $this->faker->randomFloat(2, 0, 10000),
-            'money_bonus' => $this->faker->randomFloat(2, 0, 10000),
-            'status_lock' => $this->faker->randomElement(['1', '0']), 
             'status_delete' => $this->faker->randomElement(['1', '0']), 
         ];
     }

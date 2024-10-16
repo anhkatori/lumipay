@@ -13,6 +13,8 @@ class PaypalAccount extends Model
     protected $fillable = [
         'email',
         'password',
+        'client_key',
+        'secret_key',
         'domain_site_fake',
         'max_receive_amount',
         'active_amount',

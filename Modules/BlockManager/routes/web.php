@@ -17,4 +17,7 @@ use Modules\BlockManager\App\Http\Controllers\BlockedIpController;
 Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
     Route::resource('/blocked-email', BlockedEmailController::class);
     Route::resource('/blocked-ip', BlockedIpController::class);
+    Route::post('blocked-email/{id}/unblock', 'BlockedEmailController@unblock')->name('blocked-email.unblock');
+    Route::post('blocked-email/{id}/block', 'BlockedEmailController@block')->name('blocked-email.block');
 });
+

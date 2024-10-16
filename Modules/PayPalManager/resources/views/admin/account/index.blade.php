@@ -118,7 +118,7 @@
                                 {{ $account->domain_status ? 'ON' : 'OFF' }}
                             </span>
                         </td>
-                        <td class="align-middle">({{ $account->active_amount }} + {{ $account->hold_amount }}) /
+                        <td class="align-middle">( <span style="color: blue; font-weight: bold;">{{ $account->active_amount }} </span> + {{ $account->hold_amount }}) /
                             {{ $account->max_receive_amount }}
                         </td>
                         <td class="align-middle">{{ $account->max_order_receive_amount }}</td>
@@ -148,12 +148,14 @@
                             <div class="d-flex">
                                 <a href="{{ route('admin.paypal-accounts.edit', $account->id) }}"
                                     class="btn btn-primary me-2">Edit</a>
+                                @if ($account->status_id == 6)
                                 <form action="{{ route('admin.paypal-accounts.destroy', $account->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="remove-item btn btn-danger me-2">Delete</button>
                                 </form>
+                                @endif
                                 <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
                                     data-bs-target="#popup-modal-{{ $account->id }}">Sell</button>
                             </div>

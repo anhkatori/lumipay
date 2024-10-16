@@ -114,6 +114,8 @@ class PaypalAccountController extends Controller
         $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'client_key' => 'nullable',
+            'secret_key' => 'nullable',
             'domain_site_fake' => 'required',
             'max_receive_amount' => 'required|numeric',
             'active_amount' => 'required|numeric',
@@ -136,11 +138,14 @@ class PaypalAccountController extends Controller
         $data['domain_status'] = isset($data['domain_status']) ? 1 : 0;
         $paypalAccount->update($data);
 
-        return redirect()->route('admin.paypal-accounts.index')->with('success', 'PayPal Account updated successfully.');
+        return redirect()->route('admin.paypal-accounts.edit', $paypalAccount->id)->with('success', 'PayPal Account updated successfully.');
     }
 
     public function destroy(PaypalAccount $paypalAccount)
     {
+        if ($paypalAccount->status_id != 6) {
+            return redirect()->route('admin.paypal-accounts.index')->with('error', 'PayPal Account cannot be deleted.'); 
+        }
         $paypalAccount->delete();
         return redirect()->route('admin.paypal-accounts.index')->with('success', 'PayPal Account deleted successfully.');
     }

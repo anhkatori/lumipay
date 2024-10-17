@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Modules\OrderManager\App\Http\Controllers\OrderController;
+use Modules\OrderManager\App\Http\Controllers\Admin\OrderController;
 
 /*
     |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\AirwalletManager\App\Http\Controllers;
+namespace Modules\AirwalletManager\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;

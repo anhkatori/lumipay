@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Modules\ClientManager\App\Http\Controllers\ClientController;
+use Modules\ClientManager\App\Http\Controllers\Admin\ClientController;
 
 /*
     |--------------------------------------------------------------------------

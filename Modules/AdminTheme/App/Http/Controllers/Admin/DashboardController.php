@@ -1,5 +1,5 @@
 <?php
-namespace Modules\AdminTheme\App\Http\Controllers;
+namespace Modules\AdminTheme\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use DateTime;

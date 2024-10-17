@@ -1,8 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\AirwalletManager\App\Http\Controllers\AirwalletAccountController;
-use Modules\AirwalletManager\App\Http\Controllers\AirwalletMoneyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,9 +13,3 @@ use Modules\AirwalletManager\App\Http\Controllers\AirwalletMoneyController;
 |
 */
 
-Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
-    Route::resource('airwallet-accounts', AirwalletAccountController::class);
-    Route::post('airwallet-money/sell/{airwalletAccount}', [AirwalletMoneyController::class, 'sell'])->name('airwallet-moneys.sell');
-    Route::get('airwallet-money', [AirwalletMoneyController::class, 'index'])->name('airwallet-money.index');
-    Route::put('airwallet-money/{airwalletMoney}', [AirwalletMoneyController::class, 'update'])->name('airwallet-moneys.update');
-});

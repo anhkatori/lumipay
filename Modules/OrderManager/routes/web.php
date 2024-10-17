@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\OrderManager\App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,8 +12,3 @@ use Modules\OrderManager\App\Http\Controllers\OrderController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::group(['middleware' => ['auth'], 'as' => 'admin.', 'prefix' => 'admin'], function () {
-    Route::resource('ordermanager', OrderController::class);
-    Route::post('ordermanager/{order}/dispute', 'OrderController@dispute')->name('ordermanager.dispute');
-});

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\OrderManager\App\Http\Controllers;
+namespace Modules\OrderManager\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

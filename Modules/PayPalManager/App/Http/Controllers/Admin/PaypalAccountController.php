@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\PayPalManager\App\Http\Controllers;
+namespace Modules\PayPalManager\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

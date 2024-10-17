@@ -30,6 +30,8 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
+
+        $this->mapAdminRoutes();
     }
 
     /**
@@ -55,5 +57,15 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('api')
             ->namespace($this->moduleNamespace)
             ->group(module_path('PayPalManager', '/routes/api.php'));
+    }
+
+
+    protected function mapAdminRoutes(): void
+    {
+        Route::prefix('admin')
+            ->middleware(['web', 'auth'])
+            ->as('admin.')
+            ->namespace($this->moduleNamespace)
+            ->group(module_path('PayPalManager', '/routes/admin.php'));
     }
 }

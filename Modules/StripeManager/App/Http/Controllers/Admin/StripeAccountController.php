@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\StripeManager\App\Http\Controllers;
+namespace Modules\StripeManager\App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

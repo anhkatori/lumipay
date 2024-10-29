@@ -21,16 +21,14 @@ class AirwalletMoneyController extends Controller
             ->when($request->get('buyer_email'), function ($query) use ($request) {
                 $query->where('buyer_email', 'like', '%' . $request->get('buyer_email') . '%');
             })
-            ->orderBy('id')
+            ->orderBy('id', 'desc')
             ->paginate($limit);
 
         return view('airwalletmanager::admin.sold.index', compact('airwalletMoneys'));
     }
 
     public function update(AirwalletMoney $airwalletMoney, Request $request): RedirectResponse{
-        if($airwalletMoney->status){
-            return redirect()->back()->with('error', 'Withdrawn is activated');
-        }
+
         $oldMoney = $airwalletMoney->money;
         $airwalletMoney->money = $request->input('money');
         $airwalletMoney->buyer_email = $request->input('buyer_email');
@@ -51,10 +49,15 @@ class AirwalletMoneyController extends Controller
             return redirect()->back()->with('error', 'Airwallet account not found.');
         }
 
+
+
         $moneyToSell = $request->input('money');
 
         if ($moneyToSell <= 0) {
             return redirect()->back()->with('error', 'Invalid amount to sell.');
+        }
+        if($moneyToSell > $airwalletAccount->current_amount){
+            return redirect()->back()->with('error', 'Current amount not enough to sell.');
         }
 
         $airwalletMoney = new AirwalletMoney();
@@ -66,7 +69,7 @@ class AirwalletMoneyController extends Controller
         $airwalletMoney->status = 0;
         $airwalletMoney->save();
 
-        $airwalletAccount->current_amount += $moneyToSell;
+        $airwalletAccount->current_amount -= $moneyToSell;
         $airwalletAccount->save();
 
         return redirect()->back()->with('success', 'Airwallet sell successfully.');

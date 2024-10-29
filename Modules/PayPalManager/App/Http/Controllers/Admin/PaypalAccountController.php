@@ -8,6 +8,7 @@ use Modules\PayPalManager\App\Models\PaypalAccount;
 use Modules\PayPalManager\App\Models\PaypalMoney;
 use Modules\PayPalManager\App\Models\PaypalAccountStatus;
 use Modules\ClientManager\App\Models\Client;
+use Modules\PayPalManager\Helper\Data as HelperPaypal;
 use Log;
 use Exception;
 class PaypalAccountController extends Controller
@@ -67,6 +68,16 @@ class PaypalAccountController extends Controller
 
     public function store(Request $request)
     {
+        $name_products = $request->input('name_products') ?? [];
+        $description_products = $request->input('description_products') ?? [];
+        $mergedProducts = [];
+        foreach ($name_products as $index => $nameProduct) {
+            $mergedProducts[] = [
+                "name" => $nameProduct['name'],
+                "description" => $description_products[$index]['description'] ?? null, // Use null if description is missing
+            ];
+        }
+        $request['products'] = json_encode($mergedProducts);
         $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -84,7 +95,8 @@ class PaypalAccountController extends Controller
             'xmdt_status' => 'nullable',
             'remover' => 'nullable',
             'payment_method' => 'required',
-            'client_ids' => 'required|array'
+            'client_ids' => 'required|array',
+            'products' => 'nullable'
         ]);
         $data['client_ids'] = implode(',', $data['client_ids']);
         $data['password'] = utf8_encode($data['password']);
@@ -111,6 +123,16 @@ class PaypalAccountController extends Controller
 
     public function update(Request $request, PaypalAccount $paypalAccount)
     {
+        $name_products = $request->input('name_products') ?? [];
+        $description_products = $request->input('description_products') ?? [];
+        $mergedProducts = [];
+        foreach ($name_products as $index => $nameProduct) {
+            $mergedProducts[] = [
+                "name" => $nameProduct['name'],
+                "description" => $description_products[$index]['description'] ?? null, // Use null if description is missing
+            ];
+        }
+        $request['products'] = json_encode($mergedProducts);
         $data = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -130,12 +152,22 @@ class PaypalAccountController extends Controller
             'xmdt_status' => 'nullable',
             'remover' => 'nullable',
             'payment_method' => 'required',
-            'client_ids' => 'required|array'
+            'client_ids' => 'required|array',
+            'products' => 'nullable'
         ]);
         $data['client_ids'] = implode(',', $data['client_ids']);
         $data['password'] = utf8_encode($data['password']);
         $data['xmdt_status'] = isset($data['xmdt_status']) ? now() : null;
         $data['domain_status'] = isset($data['domain_status']) ? 1 : 0;
+        if ($data['payment_method'] == 'invoice') {
+            try {
+                $token = HelperPaypal::getAccessToken($data['client_key'],$data['secret_key']);
+                HelperPaypal::createWebhook($token);                
+            } catch (Exception $e) {
+                return redirect()->route('admin.paypal-accounts.edit', $paypalAccount->id)->with('error', $e->getMessage());
+            }
+            
+        }
         $paypalAccount->update($data);
 
         return redirect()->route('admin.paypal-accounts.edit', $paypalAccount->id)->with('success', 'PayPal Account updated successfully.');
@@ -164,6 +196,10 @@ class PaypalAccountController extends Controller
             return redirect()->route('admin.paypal-accounts.index')->with('error', 'Invalid amount to sell.');
         }
 
+        if($moneyToSell >  $paypalAccount->active_amount){
+            return redirect()->back()->width('error', 'Active amount not enough to sell.');
+        }
+
         $paypalMoney = new PaypalMoney();
         $paypalMoney->account_id = $request['account-id'];
         $paypalMoney->paypal_email = $paypalAccount->email;
@@ -172,7 +208,7 @@ class PaypalAccountController extends Controller
         $paypalMoney->buyer_name = $request->input('buyer_name');
         $paypalMoney->save();
 
-        $paypalAccount->active_amount += $moneyToSell;
+        $paypalAccount->active_amount -= $moneyToSell;
         $paypalAccount->save();
 
         return redirect()->route('admin.paypal-accounts.index')->with('success', 'PayPal sell successfully.');
@@ -188,9 +224,9 @@ class PaypalAccountController extends Controller
             ->when($request->get('buyer_email'), function ($query) use ($request) {
                 $query->where('buyer_email', 'like', '%' . $request->get('buyer_email') . '%');
             })
-            ->orderBy('id')
+            ->orderBy('id', 'desc')
             ->paginate($limit);
-
+        
         return view('paypalmanager::admin.account.sold', compact('paypalMoneys'));
     }
 

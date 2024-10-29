@@ -38,7 +38,7 @@
                         <div class="col-md-2">
                             <label style="float:left" for="status">Status:</label>
                             <select class="form-control" name="status">
-                                @foreach ($availableStatuses as $status)
+                                @foreach ($availableStatuses as $status => $label)
                                     <option 
                                         @if (request()->get('status') === $status) 
                                             selected
@@ -46,7 +46,7 @@
                                         value="{{$status}}"
                                     >
                                     @php
-                                        echo ucfirst($status)
+                                        echo $label
                                     @endphp 
                                     </option>
                                 @endforeach
@@ -71,8 +71,9 @@
                     <th>IP</th>
                     <th>Method</th>
                     <th>Method Account</th>
-                    <th>Action</th>
+                    <th>Method Type</th>
                     <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -102,6 +103,18 @@
                                             {{ $order->method_account }}
                                         @endif
                                     </td>
+                                    <td class="align-middle">
+                                        @if($order->method == 'PAYPAL')
+                                            {{ $order->paypalAccount->payment_method ?? '' }}
+                                        @endif
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
+                                            style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
+                                                                            border-radius: 5px;">
+                                            {{ $order->getOrderStatusLabel($order->status)}}
+                                        </span>
+                                    </td>
                                     <td class="align-middle row">
                                         
                                             <form class="col-sm-4" action="{{ route('admin.ordermanager.destroy', $order->id) }}" method="POST"
@@ -110,25 +123,29 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="remove-item btn btn-danger">Delete</button>
                                             </form>
-                                            <form class="col-sm-4" action="{{ route('admin.ordermanager.dispute', $order->id) }}" method="POST"
-                                                style="display:inline-flex;">
-                                                @csrf
-                                                @method('POST')
-                                                <button type="submit" class="dispute-item btn btn-warning">Dispute</button>
-                                            </form>
+                                            @if ($order->status == 'dispute')
+                                                <form class="col-sm-4" action="{{ route('admin.ordermanager.closeDispute', $order->id) }}" method="POST"
+                                                    style="display:inline-flex;">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="dispute-item btn btn-warning">Close Dispute</button>
+                                                </form>
+                                            @endif
+                                            
+                                            @if ($order->status == 'processing')
+                                                <form class="col-sm-4" action="{{ route('admin.ordermanager.dispute', $order->id) }}" method="POST"
+                                                    style="display:inline-flex;">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="dispute-item btn btn-warning">Dispute</button>
+                                                </form>
+                                            @endif
                                             <div class="col-sm-4" style="display:inline-flex;">
                                                 <button type="button" class="view-btn btn btn-primary" data-bs-toggle="modal" data-bs-target="#popup-order-{{ $order->id }}">
                                                     View
                                                 </button>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="align-middle">
-                                        <span class="badge {{ $order->status == 'processing' ? 'badge-success' : 'badge-danger' }}"
-                                            style="background-color: {{ $order->status == 'processing' ? '#4c8faf' : '#4CAF50' }};
-                                                                            border-radius: 5px;">
-                                            {{ $order->status}}
-                                        </span>
                                     </td>
                                 </tr>
                 @endforeach

@@ -10,7 +10,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('paypal_accounts', function (Blueprint $table) {
-            $table->string('products')->nullable();
+            $table->text('products')->nullable();
         });
     }
 

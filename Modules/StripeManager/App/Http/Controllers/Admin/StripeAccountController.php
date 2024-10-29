@@ -73,6 +73,10 @@ class StripeAccountController extends Controller
 
     public function destroy(StripeAccount $stripeAccount)
     {
+        if(strtolower($stripeAccount->getStatus()) == 'active' ){
+            return redirect()->route('admin.stripe-accounts.index')->with('error', 'Failed to delete stripe account.');
+        }   
+        
         $stripeAccount->delete();
 
         return redirect()->route('admin.stripe-accounts.index')->with('success', 'Stripe Account deleted successfully.');
@@ -93,6 +97,10 @@ class StripeAccountController extends Controller
             return redirect()->route('admin.stripe-accounts.index')->with('error', 'Invalid amount to sell.');
         }
 
+        if($moneyToSell >  $paypalAccount->current_amount){
+            return redirect()->back()->with('error', 'Current amount not enough to sell.');
+        }
+
         $stripeMoney = new StripeMoney();
         $stripeMoney->account_id = $request['account-id'];
         $stripeMoney->stripe_domain = $stripeAccount->domain;
@@ -102,7 +110,7 @@ class StripeAccountController extends Controller
         $stripeMoney->status = '0';
         $stripeMoney->save();
 
-        $stripeAccount->current_amount += $moneyToSell;
+        $stripeAccount->current_amount -= $moneyToSell;
         $stripeAccount->save();
 
         return redirect()->route('admin.stripe-accounts.index')->with('success', 'Stripe sell successfully.');
@@ -118,7 +126,7 @@ class StripeAccountController extends Controller
             ->when($request->get('buyer_email'), function ($query) use ($request) {
                 $query->where('buyer_email', 'like', '%' . $request->get('buyer_email') . '%');
             })
-            ->orderBy('id')
+            ->orderBy('id', 'desc')
             ->paginate($limit);
 
         return view('stripemanager::admin.account.sold', compact('stripeMoneys'));

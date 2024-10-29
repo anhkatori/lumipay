@@ -26,7 +26,7 @@ class AirwalletManagerServiceProvider extends ServiceProvider
                 ],
                 'admin.airwallet-money.index' => [
                     'route' => 'admin.airwallet-money.index',
-                    'name' => 'Airwallet Money',
+                    'name' => 'Airwallet Sold',
                     'className' => 'mx-3',
                 ],
 

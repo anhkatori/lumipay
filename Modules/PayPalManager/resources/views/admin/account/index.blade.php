@@ -8,6 +8,11 @@
         {{ session('success') }}
     </div>
 @endif
+@if (session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 <style>
     hr {
         color: #787878;
@@ -109,8 +114,14 @@
                             @if($account->proxy)| @endif
                             {{ $account->proxy }}
                         </td>
-                        <td class="align-middle">{{ $account->domain_site_fake }}
-                            <hr> {{ $account->site_client }}
+                        <td class="align-middle">
+                            {{ $account->domain_site_fake }}
+                            <hr> 
+                            @foreach ($account->clients as $client)
+                                {{ $client->name }}
+                                @if(!$loop->last), @endif
+                            @endforeach    
+                             <div class="pb-3"></div>
                         </td>
                         <td class="align-middle">
                             <span class="badge {{ $account->domain_status ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ $account->domain_status ? '#4CAF50' : '#d9534f' }};
@@ -118,10 +129,13 @@
                                 {{ $account->domain_status ? 'ON' : 'OFF' }}
                             </span>
                         </td>
-                        <td class="align-middle">( <span style="color: blue; font-weight: bold;">{{ $account->active_amount }} </span> + {{ $account->hold_amount }}) /
-                            {{ $account->max_receive_amount }}
+                        <td class="align-middle">
+                            <div style="white-space:nowrap"> 
+                                ( <span style="color: blue; font-weight: bold;">{{ $account->active_amount }} </span> + {{ $account->hold_amount }}) /
+                                {{ $account->max_receive_amount }}
+                            </div>
                         </td>
-                        <td class="align-middle">{{ $account->max_order_receive_amount }}</td>
+                        <td class="align-middle">{{ $account->max_order_receive_amount }} $</td>
                         <td class="align-middle">
                             @if($account->status && $account->status->name == 'Work')
                                 <span class="badge"
@@ -159,54 +173,54 @@
                                 <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
                                     data-bs-target="#popup-modal-{{ $account->id }}">Sell</button>
                             </div>
-                        </td>
-                    </tr>
-                    <div class="modal fade" id="popup-modal-{{ $account->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <p class="modal-title">Sell paypal for email:
-                                        {{ $account->email }}
-                                    </p>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="{{ route('admin.paypal-accounts.sell') }}" method="POST">
-                                        @csrf
-                                        <input type="text" id="account-id" value={{$account->id}} name="account-id" hidden>
-                                        <div class="mb-3 row">
-                                            <label for="money" class="col-sm-2 col-form-label">Money <span
-                                                    style="color: red">*</span></label>
-                                            <div class="col-sm-10">
-                                                <input type="number" step="0.01" class="form-control" id="money"
-                                                    name="money" required>
-                                            </div>
+                            <div class="modal fade" id="popup-modal-{{ $account->id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <p class="modal-title">Sell paypal for email:
+                                                {{ $account->email }}
+                                            </p>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
                                         </div>
-                                        <div class="mb-3 row">
-                                            <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span
-                                                    style="color: red">*</span></label>
-                                            <div class="col-sm-10">
-                                                <input type="email" class="form-control" id="buyer_email" name="buyer_email"
-                                                    required>
-                                            </div>
+                                        <div class="modal-body">
+                                            <form action="{{ route('admin.paypal-accounts.sell') }}" method="POST">
+                                                @csrf
+                                                <input type="text" id="account-id" value={{$account->id}} name="account-id" hidden>
+                                                <div class="mb-3 row">
+                                                    <label for="money" class="col-sm-2 col-form-label">Money <span
+                                                            style="color: red">*</span></label>
+                                                    <div class="col-sm-10">
+                                                        <input type="number" step="0.01" class="form-control" id="money"
+                                                            name="money" required>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row">
+                                                    <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span
+                                                            style="color: red">*</span></label>
+                                                    <div class="col-sm-10">
+                                                        <input type="email" class="form-control" id="buyer_email" name="buyer_email"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3 row">
+                                                    <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span
+                                                            style="color: red">*</span></label>
+                                                    <div class="col-sm-10">
+                                                        <input type="text" class="form-control" id="buyer_name" name="buyer_name"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <button type="submit" class="btn btn-primary">Save</button>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <div class="mb-3 row">
-                                            <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span
-                                                    style="color: red">*</span></label>
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control" id="buyer_name" name="buyer_name"
-                                                    required>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <button type="submit" class="btn btn-primary">Save</button>
-                                        </div>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

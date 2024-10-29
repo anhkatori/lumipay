@@ -11,6 +11,7 @@ use Modules\StripeManager\App\Models\StripeAccount;
 use Modules\AirwalletManager\App\Models\AirwalletAccount;
 use Modules\BlockManager\App\Models\BlockedIp;
 use Modules\BlockManager\App\Models\BlockedEmail;
+use Modules\PayPalManager\Helper\Data as HelperPaypal;
 use Illuminate\Support\Facades\Log;
 use \Carbon\Carbon;
 use Log as Log2;
@@ -63,10 +64,11 @@ class OrderController extends Controller
 
     protected function getAvailableStatuses()
     {
-        $result = [];
+        $result[''] = '--Please Select--';
         $dbQueries = \DB::table('orders')->distinct()->get(['status']);
+        $order = new Order();
         foreach ($dbQueries as $record) {
-            $result[] =$record->status;
+            $result[$record->status] = $order->getOrderStatusLabel($record->status);
         }
         return $result;
     }
@@ -112,10 +114,25 @@ class OrderController extends Controller
                     'status_delete' => '0'
                 ]);
             }
+            $order['status'] = 'dispute';
+            $order->save();
 
             return redirect()->route('admin.ordermanager.index')->with('success', 'This email and IP have been blocked.');
         } else {
-            // return redirect()->route('admin.ordermanager.index')->with('error', 'Order not found.');
+            return redirect()->route('admin.ordermanager.index')->with('error', 'Order not found.');
+        }
+    }
+
+    public function closeDispute($id)
+    {
+        $order = Order::find($id);
+        if ($order) {
+            $order['status'] = 'close_dispute';
+            $order->save();
+
+            return redirect()->route('admin.ordermanager.index')->with('success', 'Closed dispute for this order');
+        } else {
+            return redirect()->route('admin.ordermanager.index')->with('error', 'Order not found.');
         }
     }
 
@@ -179,34 +196,19 @@ class OrderController extends Controller
                     $url =  $methodData['domain_site_fake'] . "?wc-ajax=tpaypal&hash=" . $orderCode;
                     if ($methodData->payment_method == 'invoice') {
                         $paymentType = 'invoice';
-                        $base_url = 'https://api-m.sandbox.paypal.com';
-                        $curl = curl_init();
-                        curl_setopt_array($curl, [
-                            CURLOPT_URL => $base_url."/v1/oauth2/token",
-                            CURLOPT_RETURNTRANSFER => true,
-                            CURLOPT_ENCODING => "",
-                            CURLOPT_MAXREDIRS => 10,
-                            CURLOPT_TIMEOUT => 30,
-                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                            CURLOPT_CUSTOMREQUEST => "POST",
-                            CURLOPT_USERPWD => $methodData->client_key.":".$methodData->secret_key,
-                            CURLOPT_POSTFIELDS => "grant_type=client_credentials",
-                            CURLOPT_HTTPHEADER => [
-                                "Accept: application/json",
-                                "Accept-Language: en_US"
-                            ],
-                        ]);
-
-                        $result= curl_exec($curl);
-                        $result=json_decode($result, true); 
-                        $token=$result['access_token'];
-
+                        $token = HelperPaypal::getAccessToken($methodData->client_key,$methodData->secret_key);
+                        $paypalRandom = PaypalAccount::whereNotNull('products')->inRandomOrder()->first();
+                        $products = $paypalRandom->parseProductsToArray();
+                        
+                        $product = reset(array: $products);
+                        $productName = isset($product['name']) ? $product['name']: '';
+                        $productDescription = isset($product['description']) ? $product['description']: '';
                         $data = [
                             "detail" => (object) [
-                                "invoice_date" => date(format: "Y-m-d"),
                                 "currency_code" => "USD",
                                 "reference" => 'Order #'.$params['request_id'],
-                                "note" => $params['description']
+                                "note" => $params['description'],
+                                'memo' => $order['id']
                             ],
                             'primary_recipients' => [
                                 [
@@ -217,8 +219,8 @@ class OrderController extends Controller
                             ],
                             "items" => [
                                 [
-                                    "name" => "Yoga Mat",
-                                    "description" => "Elastic mat to practice yoga.",
+                                    "name" =>  $productName,
+                                    "description" => $productDescription,
                                     "quantity" => "1",
                                     "unit_amount" => (object) [
                                         "currency_code" => "USD",
@@ -228,34 +230,8 @@ class OrderController extends Controller
                                 ]
                             ]
                         ];
-                        // var_dump(json_encode($data));die;
-                        
-                        $curl = curl_init($base_url."/v2/invoicing/invoices");
-                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
-                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-                        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                            "Content-Type: application/json",
-                            "Authorization: Bearer " . $token
-                        ]);
-
-                        $result = curl_exec($curl);
-                        $result=json_decode($result, true); 
-                        $curl = curl_init($result['href'].'/send');
-                        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
-                        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
-                            "subject"=> "<The subject of the email that is sent as a notification to the recipient.>",
-                            "note" => "<A note to the payer.>",
-                            'send_to_recipient' => true
-                        ]));
-                        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                            "Content-Type: application/json",
-                            "Authorization: Bearer " . $token
-                        ]);
-                        $result = curl_exec($curl);
-                        $result=json_decode($result, true); 
-                        $url = $result['href'];
+                    
+                        $url = HelperPaypal::createAndSendInvoice($data, $token);
                     }
                     return response()->json([
                         'status' => 'success',

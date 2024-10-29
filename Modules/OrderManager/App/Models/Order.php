@@ -34,6 +34,15 @@ class Order extends Model
         'addtional'
     ];
 
+    protected $orderStatus = [
+        'processing' => 'Processing',
+        'complete' => 'Complete',
+        'dispute' => 'Dispute',
+        'close_dispute' => 'Closed Dispute',
+        'canceled' => 'Canceled',
+        'echeck' => 'Echeck',
+    ];
+
     protected static function factory(): OrderFactory
     {
         return OrderFactory::new();
@@ -50,5 +59,10 @@ class Order extends Model
     public function airwalletAccount()
     {
         return $this->hasOne(AirwalletAccount::class, 'id', 'method_account');
+    }
+
+    public function getOrderStatusLabel($status)
+    {
+        return isset($this->orderStatus[$status]) ? $this->orderStatus[$status] : $status;
     }
 }

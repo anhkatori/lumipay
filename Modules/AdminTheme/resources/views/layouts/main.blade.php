@@ -45,7 +45,23 @@
             </div>
         </main> <!--end::App Main--> <!--begin::Footer-->
     </div> <!--end::App Wrapper--> <!--begin::Script--> <!--begin::Third Party Plugin(OverlayScrollbars)-->
-    
+    <script type="module">
+        $(function(){
+            $('form').on('submit', function(e) {
+                try {
+                    const submitButton = $(this).find('button[type="submit"]');
+                    console.log(submitButton, this);
+                    submitButton.prop('disabled', true);
+                    submitButton.html('<span>Submitting...</span>');
+
+                } catch (error) {
+                    console.error('Error during form submission:', error);
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        })
+    </script>
     @stack('scripts')
 </body><!--end::Body-->
 

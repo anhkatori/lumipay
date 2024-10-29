@@ -69,65 +69,66 @@
                                     <td class="align-middle">{{ $stripeMoney->created_at }}</td>
                                     <td class="align-middle">
                                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#popup-modal-{{ $stripeMoney->id }}" {{ $stripeMoney->status == 1 ? 'disabled' : '' }}>Edit</button>
-                                    </td>
-                                </tr>
-                                <div class="modal fade" id="popup-modal-{{ $stripeMoney->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <p class="modal-title">Edit stripe money for email: {{ $stripeMoney->stripe_email }}</p>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form action="{{ route('admin.stripe-moneys.sold-update', $stripeMoney->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="text" id="account-id" value={{$stripeMoney->id}} name="account-id"
-                                                        hidden>
-                                                    <div class="mb-3 row">
-                                                        <label for="money" class="col-sm-2 col-form-label">Money <span
-                                                                style="color: red">*</span></label>
-                                                        <div class="col-sm-10">
-                                                            <input type="number" step="0.01" class="form-control" id="money"
-                                                                name="money" value="{{ $stripeMoney->money }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span
-                                                                style="color: red">*</span></label>
-                                                        <div class="col-sm-10">
-                                                            <input type="email" class="form-control" id="buyer_email" name="buyer_email"
-                                                                value="{{ $stripeMoney->buyer_email }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span
-                                                                style="color: red">*</span></label>
-                                                        <div class="col-sm-10">
-                                                            <input type="text" class="form-control" id="buyer_name" name="buyer_name"
-                                                                value="{{ $stripeMoney->buyer_name }}" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3 row">
-                                                        <label for="status" class="col-sm-2 col-form-label">Activate</label>
-                                                        <div class="col-sm-2">
-                                                            <div class="form-check form-switch d-flex align-items-center ms-4">
-                                                                <input class="form-check-input" type="checkbox" id="status" style="font-size: x-large;float: inherit;" name="status" {{ $stripeMoney->status == 1 ? 'checked' : '' }}
-                                                                    {{ $stripeMoney->status == 1 ? 'disabled' : '' }}>
+                                            data-bs-target="#popup-modal-{{ $stripeMoney->id }}" >Edit</button>
+                                                                        <div class="modal fade" id="popup-modal-{{ $stripeMoney->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <p class="modal-title">Edit stripe money for email: {{ $stripeMoney->stripe_email }}</p>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="{{ route('admin.stripe-moneys.sold-update', $stripeMoney->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="text" id="account-id" value={{$stripeMoney->id}} name="account-id"
+                                                            hidden>
+                                                        <div class="mb-3 row">
+                                                            <label for="money" class="col-sm-2 col-form-label">Money <span
+                                                                    style="color: red">*</span></label>
+                                                            <div class="col-sm-10">
+                                                                <input type="number" step="0.01" class="form-control" id="money"
+                                                                    name="money" value="{{ $stripeMoney->money }}" required>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="text-right">
-                                                        <button type="submit" class="btn btn-primary">Save</button>
-                                                    </div>
-                                                </form>
+                                                        <div class="mb-3 row">
+                                                            <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span
+                                                                    style="color: red">*</span></label>
+                                                            <div class="col-sm-10">
+                                                                <input type="email" class="form-control" id="buyer_email" name="buyer_email"
+                                                                    value="{{ $stripeMoney->buyer_email }}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3 row">
+                                                            <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span
+                                                                    style="color: red">*</span></label>
+                                                            <div class="col-sm-10">
+                                                                <input type="text" class="form-control" id="buyer_name" name="buyer_name"
+                                                                    value="{{ $stripeMoney->buyer_name }}" required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3 row">
+                                                            <label for="status" class="col-sm-2 col-form-label">Activate</label>
+                                                            <div class="col-sm-2">
+                                                                <div class="form-check form-switch d-flex align-items-center ms-4">
+                                                                    <input class="form-check-input" type="checkbox" id="status" style="font-size: x-large;float: inherit;" name="status" {{ $stripeMoney->status == 1 ? 'checked' : '' }}
+                                                                        {{ $stripeMoney->status == 1 ? 'disabled' : '' }}>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <button type="submit" class="btn btn-primary">Save</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                    </td>
+                                </tr>
+
                 @endforeach
             </tbody>
         </table>

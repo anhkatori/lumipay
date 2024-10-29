@@ -67,16 +67,14 @@
                                             {{ !$airwalletMoney->status ? 'Hold' : 'Activate' }}
                                         </span>
                                     </td>
-                                    <td class="align-middle">{{ $airwalletMoney->money }}</td>
+                                    <td class="align-middle">{{ $airwalletMoney->money }} $</td>
                                     <td class="align-middle">{{ $airwalletMoney->buyer_email }}</td>
                                     <td class="align-middle">{{ $airwalletMoney->buyer_name }}</td>
                                     <td class="align-middle">{{ $airwalletMoney->created_at }}</td>
                                     <td class="align-middle">
                                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                                            data-bs-target="#popup-modal-{{ $airwalletMoney->id }}" {{ $airwalletMoney->status == 1 ? 'disabled' : '' }}>Edit</button>
-                                    </td>
-                                </tr>
-                                <div class="modal fade" id="popup-modal-{{ $airwalletMoney->id }}" tabindex="-1" aria-hidden="true">
+                                            data-bs-target="#popup-modal-{{ $airwalletMoney->id }}">Edit</button>
+                                                     <div class="modal fade" id="popup-modal-{{ $airwalletMoney->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -85,8 +83,7 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <form action="{{ route('admin.airwallet-moneys.update', $airwalletMoney->id) }}"
-                                                    method="POST">
+                                                <form action="{{ route('admin.airwallet-moneys.update', $airwalletMoney->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
                                                     <input type="text" id="account-id" value={{$airwalletMoney->id}} name="account-id"
@@ -132,6 +129,9 @@
                                         </div>
                                     </div>
                                 </div>
+                                    </td>
+                                </tr>
+                       
                 @endforeach
             </tbody>
         </table>
@@ -156,6 +156,7 @@
                     return false;
                 }
             });
+            
         });
     </script>
 @endpush

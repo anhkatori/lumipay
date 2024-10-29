@@ -21,9 +21,9 @@
                 <tr>
                     <th>ID</th>
                     <th>Domain</th>
-                    <th>Max Receive Amount</th>
                     <th>Current Amount</th>
-                    <th>Max Order Receive Amount</th>
+                    <th>Max Receive </th>
+                    <th>Max Amount / Order</th>
                     <th>Client</th>
                     <th>Status</th>
                     <th>Withdrawn</th>
@@ -35,10 +35,17 @@
                     <tr>
                         <td class="align-middle">{{ $account->id }}</td>
                         <td class="align-middle">{{ $account->domain }}</td>
-                        <td class="align-middle">{{ $account->max_receive_amount }}</td>
-                        <td class="align-middle">{{ $account->current_amount }}</td>
-                        <td class="align-middle">{{ $account->max_order_receive_amount }}</td>
-                        <td class="align-middle">{!! $account->clients->pluck('email')->implode('<br>') !!}</td>
+                        <td class="align-middle">{{ $account->max_receive_amount }} $</td>
+                        <td class="align-middle">{{ $account->current_amount }} $</td>
+                        <td class="align-middle">{{ $account->max_order_receive_amount }} $</td>
+                        <td class="align-middle">
+                            @foreach ($account->clients as $client)
+                                <div style="white-space:nowrap">
+                                    {{ $client->name }}
+                                </div>
+                                @if(!$loop->last)<hr> @else <div class="pb-3"></div> @endif
+                            @endforeach    
+                        </td>
                         <td class="align-middle">
                             <span class="badge {{ $account->getStatus() == 1 ? 'badge-success' : 'badge-danger' }}" style="background-color: {{ $account->getStatus() == 'Active' ? '#4CAF50' : '#d9534f' }};
                                                 border-radius: 5px;">
@@ -119,7 +126,19 @@
         document.addEventListener("DOMContentLoaded", (event) => {
             $('.remove-item').on('click', function () {
                 return confirm('Are you sure?');
-            })
+            });
+
+            $('form').on('submit', function(e) {
+                try {
+                    const submitButton = $(this).find('button[type="submit"]');
+                    submitButton.prop('disabled', true);
+                    submitButton.html('<span>Submitting...</span>');
+                } catch (error) {
+                    console.error('Error during form submission:', error);
+                    e.preventDefault();
+                    return false;
+                }
+            });
         });
     </script>
 @endpush

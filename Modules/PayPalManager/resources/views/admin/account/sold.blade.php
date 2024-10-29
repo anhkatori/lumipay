@@ -60,46 +60,46 @@
                 <td class="align-middle">{{ $paypalMoney->created_at }}</td>
                 <td class="align-middle">
                     <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#popup-modal-{{ $paypalMoney->id }}">Edit</button>
-                </td>
-            </tr>
-            <div class="modal fade" id="popup-modal-{{ $paypalMoney->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <p class="modal-title">Edit paypal money for email: {{ $paypalMoney->paypal_email }}</p>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="{{ route('admin.paypal-moneys.sold-update', $paypalMoney->id) }}" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <input type="text" id="account-id" value={{$paypalMoney->id}} name="account-id" hidden>
-                                <div class="mb-3 row">
-                                    <label for="money" class="col-sm-2 col-form-label">Money <span style="color: red">*</span></label>
-                                    <div class="col-sm-10">
-                                        <input type="number" step="0.01" class="form-control" id="money" name="money" value="{{ $paypalMoney->money }}" required>
-                                    </div>
+                    <div class="modal fade" id="popup-modal-{{ $paypalMoney->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <p class="modal-title">Edit paypal money for email: {{ $paypalMoney->paypal_email }}</p>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <div class="mb-3 row">
-                                    <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span style="color: red">*</span></label>
-                                    <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="buyer_email" name="buyer_email" value="{{ $paypalMoney->buyer_email }}" required>
-                                    </div>
+                                <div class="modal-body">
+                                    <form action="{{ route('admin.paypal-moneys.sold-update', $paypalMoney->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="text" id="account-id" value={{$paypalMoney->id}} name="account-id" hidden>
+                                        <div class="mb-3 row">
+                                            <label for="money" class="col-sm-2 col-form-label">Money <span style="color: red">*</span></label>
+                                            <div class="col-sm-10">
+                                                <input type="number" step="0.01" class="form-control" id="money" name="money" value="{{ $paypalMoney->money }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="buyer_email" class="col-sm-2 col-form-label">Buyer Email <span style="color: red">*</span></label>
+                                            <div class="col-sm-10">
+                                                <input type="email" class="form-control" id="buyer_email" name="buyer_email" value="{{ $paypalMoney->buyer_email }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span style="color: red">*</span></label>
+                                            <div class="col-sm-10">
+                                                <input type="text" class="form-control" id="buyer_name" name="buyer_name" value="{{ $paypalMoney->buyer_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <button type="submit" class="btn btn-primary">Save</button>
+                                        </div>
+                                    </form>
                                 </div>
-                                <div class="mb-3 row">
-                                    <label for="buyer_name" class="col-sm-2 col-form-label">Buyer Name <span style="color: red">*</span></label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="buyer_name" name="buyer_name" value="{{ $paypalMoney->buyer_name }}" required>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-primary">Save</button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </td>
+            </tr>
         @endforeach
     </tbody>
 </table>

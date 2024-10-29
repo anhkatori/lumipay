@@ -30,7 +30,8 @@ class PaypalAccount extends Model
         'domain_status',
         'site_client',
         'xmdt_status',
-        'remover'
+        'remover',
+        'products'
     ];
 
     /**
@@ -54,9 +55,15 @@ class PaypalAccount extends Model
         return $this->getPaymentMethods()[$this->payment_method];
     }
 
-    public function clients(){
+    public function clients()
+    {
         return $this->belongsToMany(Client::class)
             ->whereIn('clients.id', explode(',', $this->client_ids));
+    }
+
+    public function getClientsAttribute()
+    {
+        return Client::whereIn('id', explode(',', $this->client_ids))->get();
     }
 
     public static function factory(): PaypalAccountFactory
@@ -67,5 +74,12 @@ class PaypalAccount extends Model
     public function getRouteName()
     {
         return 'paypal-accounts';
+    }
+
+    public function parseProductsToArray()
+    {
+        $products = json_decode($this->products, true);
+    
+        return is_array($products) ? $products : [];
     }
 }

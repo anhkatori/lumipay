@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row {{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'd-none' : '' }}" >
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label class="form-label" for="email">PayPal Client Key</label>
@@ -60,6 +60,33 @@
                             name="secret_key"
                             value="{{ old('secret_key', isset($paypalAccount) ? $paypalAccount->secret_key : '') }}">
                     </div>
+                </div>
+            </div>
+            <div class="row {{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'd-none' : '' }}">
+                <div class="col-md-12">
+                    <div class="form-group  mb-3">
+                        <div class="d-flex mb-2 gap-1 align-items-center">
+                            <label class="form-label mb-0" for="products">Products</label>
+                            <a href="#" class="btn btn-success btn-sm add-product-field"><i class="bi bi-plus-lg"></i></a>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 product-container d-flex flex-wrap gap-2 flex-column ">
+                                @if(isset($paypalAccount))
+                                @foreach($paypalAccount->parseProductsToArray() as $productKey => $product)
+                                    <div class="d-flex gap-2 field-wrap">
+                                        <input type="text" placeholder="Name" name="name_products[][name]" value="{{isset($product['name']) ? $product['name'] : ''}}" class="form-control">
+                                        <input type="text" placeholder="Description"  name="description_products[][description]" value="{{isset($product['description']) ? $product['description'] : ''}}"  class="form-control">
+                                        <a href="#" class="remove-product btn btn-danger btn-xs"><i class="bi bi-x-lg"></i></a>
+                                    </div>
+                                @endforeach
+                                @endif
+                            </div>
+                            <div class="col-sm-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-md-2">
                 </div>
             </div>
 
@@ -231,7 +258,10 @@
     </form>
 </div>
 
-<script>
+@endsection
+
+@push('scripts')
+<script type="module">
     document.getElementById('domain_status').addEventListener('change', function () {
         if (this.checked) {
             document.getElementById('domain-status-label').innerText = 'ON';
@@ -246,6 +276,28 @@
             document.getElementById('xmdt-status-label').innerText = 'OFF';
         }
     });
-</script>
+    $('#payment_method').on('change', function (){
+        if($(this).val() != 'invoice'){
+            $('.row').has('#products, #client_key, #secret_key').hide();
+        }else{
+            $('.row').has('#products, #client_key, #secret_key').show();
+        }
+    })
+    $('.add-product-field').on('click', function (e){
+        e.preventDefault()
+        var html = $(`
+            <div class="d-flex gap-2 field-wrap">
+                <input type="text" placeholder="Name" name="name_products[][name]" value="" class="form-control">
+                <input type="text" placeholder="Description"  name="description_products[][description]" value=""  class="form-control">
+                <a href="#" class="remove-product btn btn-danger btn-xs"><i class="bi bi-x-lg"></i></a>
+            </div>
+        `);
+        $('.product-container').append(html);
+    })
+    $('.product-container').on('click', '.remove-product', function (e){
+        e.preventDefault()
+        $(this).closest('.field-wrap').remove();
+    });
 
-@endsection
+</script>
+@endpush

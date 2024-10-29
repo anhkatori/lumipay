@@ -81,6 +81,7 @@
             </div>
         </div>
         <div class="card-footer p-3 px-5">
+            <input type="submit" name="submit_and_back" >
             <button type="submit"
                 class="float-end btn btn-primary">{{ isset($airwalletAccount) ? 'Update Account' : 'Create Account' }}</button>
         </div>

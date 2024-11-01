@@ -14,4 +14,4 @@ use Modules\PayPalManager\App\Http\Controllers\PayPalController;
 |
 */
 
-Route::get('paypal/webhook', [PayPalController::class, 'webhook'])->name('paypal.webhook');
+Route::post('paypal/webhook', [PayPalController::class, 'webhook'])->name('paypal.webhook');

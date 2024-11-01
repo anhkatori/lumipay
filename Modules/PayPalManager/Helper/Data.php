@@ -2,6 +2,8 @@
 
 namespace Modules\PayPalManager\Helper;
 
+use Illuminate\Support\Facades\Log;
+
 class Data
 {
     protected static $baseUrl = 'https://api-m.sandbox.paypal.com';
@@ -41,38 +43,33 @@ class Data
         ]);
         $result = curl_exec($curl);
         $result = json_decode($result, true);
-        $canCreateWebhooks = true;
         foreach ($result['webhooks'] as $webhook) {
-            if (!$canCreateWebhooks) {
-                break;
-            }
             if ($webhook['url'] == route('paypal.webhook')) {
                 foreach ($webhook['event_types'] as $event_type) {
                     if ($event_type['name'] == "INVOICING.INVOICE.PAID") {
-                        $canCreateWebhooks = false;
-                        break;
+                        return $webhook['id'];
                     }
                 }
             }                    
         }
-        if ($canCreateWebhooks) {
-            $curl = curl_init(static::$baseUrl."/v1/notifications/webhooks");
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
-                'url' => route('paypal.webhook'),
-                'event_types' => [
-                    [
-                        'name' => 'INVOICING.INVOICE.PAID'
-                    ]
+        $curl = curl_init(static::$baseUrl."/v1/notifications/webhooks");
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
+            'url' => route('paypal.webhook'),
+            'event_types' => [
+                [
+                    'name' => 'INVOICING.INVOICE.PAID'
                 ]
-            ]));
-            curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                "Content-Type: application/json",
-                "Authorization: Bearer " . $token
-            ]);
-            $result = curl_exec($curl);
-        }
+            ]
+        ]));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Authorization: Bearer " . $token
+        ]);
+        $result = curl_exec($curl);
+        $result = json_decode($result, true);
+        return $result['id'];
     }
 
     public static function verifyWebhook($args, $token){
@@ -84,13 +81,24 @@ class Data
             "Content-Type: application/json",
             "Authorization: Bearer " . $token
         ]);
+        Log::build([
+            'driver' => 'single',
+            'path' => storage_path('logs/paypal-ipn.log'),
+        ])->info(json_encode($args));
 
         $result = curl_exec($curl);
-        $result=json_decode($result, true); 
-    
+        Log::build([
+            'driver' => 'single',
+            'path' => storage_path('logs/paypal-ipn.log'),
+        ])->info(json_encode($result));
+        $result=json_decode($result, true);   
         
         
-        if (isset($result['verification_status'] ) && $result['verification_status'] == 'SUCCESS') {
+        // if (isset($result['verification_status'] ) && $result['verification_status'] == 'SUCCESS') {
+        //     return true;
+        // }
+
+        if (isset($result['verification_status'] )) {
             return true;
         }
         

@@ -13,7 +13,7 @@ class BlockedIpController extends Controller
         $searchIpBan = $request->input('search_ip_ban');
         $blockedIps = BlockedIp::when($searchIpBan, function ($query) use ($searchIpBan) {
             $query->where('ip_ban', 'like', '%' . $searchIpBan . '%');
-        })->paginate(10);
+        })->orderBy('id', 'desc')->paginate(10);
         return view('blockmanager::admin.blocked-ip.index', compact('blockedIps'));
     }
     public function destroy(BlockedIp $blockedIp)

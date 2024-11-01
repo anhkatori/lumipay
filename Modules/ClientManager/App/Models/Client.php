@@ -10,12 +10,13 @@ use Modules\ClientManager\Database\Factories\ClientFactory;
 use Modules\AirwalletManager\App\Models\AirwalletAccount;
 use Modules\StripeManager\App\Models\StripeAccount;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Client extends Model
 {
     use HasFactory, HasApiTokens;
-
+    use SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *
@@ -29,6 +30,8 @@ class Client extends Model
         'address',
         'merchant_id',
         'private_key',
+        'status',
+        'invoice_description',
     ];
 
     /**

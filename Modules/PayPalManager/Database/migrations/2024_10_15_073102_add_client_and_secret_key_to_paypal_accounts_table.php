@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('paypal_accounts', function (Blueprint $table) {
             $table->string('client_key')->nullable();
             $table->string('secret_key')->nullable();
+            $table->string('webhook_id')->nullable();
         });
     }
 

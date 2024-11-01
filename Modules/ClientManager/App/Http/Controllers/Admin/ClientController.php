@@ -17,7 +17,14 @@ class ClientController extends Controller
     {
         $limit = $request->get('limit', 10);
         $limit = $this->validateLimit($limit);
-        $clients = Client::orderBy('id', 'desc')->paginate($limit);
+        $clients = Client::when($request->get('only-trashed'), function ($query) use ($request) {
+            $query->onlyTrashed();
+        })
+        ->when($request->get('status'), function ($query) use ($request) {
+            $query->orderBy('status', strtolower($request->get('status')) == 'asc' ? 'ASC' : 'DESC');
+        })
+        ->orderBy('id', 'desc')
+        ->paginate($limit);
         
         return view('clientmanager::admin.index', compact('clients'));
     }
@@ -41,8 +48,10 @@ class ClientController extends Controller
             'username' => 'required|unique:clients',
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
+            'status' => 'nullable',
+            'invoice_description' => 'nullable',
         ]);
-
+        $validatedData['status'] = isset($validatedData['status']) ? 1 : 0;
         Client::create($validatedData);
 
         return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
@@ -59,9 +68,16 @@ class ClientController extends Controller
     /**
      * Show the form for editing the specified client.
      */
-    public function edit(Client $client)
+    public function edit(Client $client, Request $request)
     {
-        return view('clientmanager::admin.form', compact('client'));
+        $limit = $request->get('limit', 10);
+        $limit = $this->validateLimit($limit);
+
+        $paypalAccounts = $client->paypalAccounts()->paginate($limit, ['*'], 'paypal_account')->setPageName('paypal_account');
+        $stripeAccounts = $client->stripeAccounts()->paginate($limit, ['*'], 'stripe_account')->setPageName('stripe_account');
+        $airwalletAccounts = $client->airwalletAccounts()->paginate($limit, ['*'], 'airwallet_account')->setPageName('airwallet_account');
+
+        return view('clientmanager::admin.form', compact('client', 'paypalAccounts', 'stripeAccounts', 'airwalletAccounts'));
     }
 
     /**
@@ -75,8 +91,11 @@ class ClientController extends Controller
             'username' => 'required|unique:clients,username,' . $client->id,
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
+            'status' => 'nullable',
+            'invoice_description' => 'nullable',
         ]);
-
+        $validatedData['status'] = isset($validatedData['status']) ? 1 : 0;
+        
         $client->update($validatedData);
 
         return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
@@ -87,9 +106,9 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        $client->airwalletAccounts()->delete();
-        $client->paypalAccounts()->delete();
-        $client->stripeAccounts()->delete();
+        // $client->airwalletAccounts()->delete();
+        // $client->paypalAccounts()->delete();
+        // $client->stripeAccounts()->delete();
 
         $client->delete();
 
@@ -102,5 +121,26 @@ class ClientController extends Controller
             'message' => 'Success',
             'data' => $request->all()
         ]);
+    }
+
+    public function restore($id)
+    {
+        $client = Client::onlyTrashed()->find($id);
+        if ($client) {
+            $client->restore();
+            return redirect()->route('admin.clients.index', ['only-trashed' => 1])->with('success', 'Client restored successfully.');
+        }
+
+        return redirect()->route('admin.clients.index', ['only-trashed' => 1])->with('error', 'Client not found.');
+    }
+
+    public function status(Client $client, Request $request)
+    {
+        if ($client) {
+            $client->update(['status' => $request->input('status')]);
+            return redirect()->route('admin.clients.index')->with('success', 'Client change status successfully.');
+        }
+
+        return redirect()->route('admin.clients.index')->with('error', 'Client not found.');
     }
 }

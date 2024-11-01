@@ -20,7 +20,7 @@ class BlockedEmailController extends Controller
             $query->where('status_lock', $request->input('status_lock'));
         }
 
-        $blockedEmails = $query->paginate(10);
+        $blockedEmails = $query->orderBy('id', 'desc')->paginate(10);
 
         return view('blockmanager::admin.blocked-email.index', compact('blockedEmails'));
     }

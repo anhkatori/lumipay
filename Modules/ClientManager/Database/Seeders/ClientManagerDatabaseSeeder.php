@@ -17,7 +17,7 @@ class ClientManagerDatabaseSeeder extends Seeder
             'merchant_id' => 'cde326a2-5cc5-4c87-9873-8c7dfe770cc2'
         ]);
         $client->save();
-        Client::factory()->count(5)->create();
+        Client::factory()->count(1)->create();
         $this->call([]);
     }
 }

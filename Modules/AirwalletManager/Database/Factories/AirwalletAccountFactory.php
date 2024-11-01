@@ -19,9 +19,9 @@ class AirwalletAccountFactory extends Factory
     {
         return [
             'domain' => 'http://takepremium.247vn.asia',
-            'max_receive_amount' => $this->faker->randomFloat(2, 1, 10000),
-            'current_amount' => $this->faker->randomFloat(2, 0, 10000),
-            'max_order_receive_amount' => $this->faker->randomFloat(2, 1, 5000),
+            'max_receive_amount' => 200,
+            'current_amount' => 0,
+            'max_order_receive_amount' => 20,
             'status' => $this->faker->boolean ? 1 : 0,
             'client_ids' => '1,3'
         ];

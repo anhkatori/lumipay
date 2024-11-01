@@ -24,17 +24,16 @@ class PaypalAccountFactory extends Factory
             'seller' => $this->faker->company, 
             'domain_site_fake' => 'http://takepremium.247vn.asia',
             'domain_status' => $this->faker->randomElement(['1', '0']), 
-            'max_receive_amount' => $this->faker->randomFloat(2, 1, 10000),
-            'active_amount' => $this->faker->randomFloat(2, 0, 10000),
-            'hold_amount' => $this->faker->randomFloat(2, 0, 10000),
-            'max_order_receive_amount' => $this->faker->randomFloat(2, 1, 5000),
+            'max_receive_amount' => 200,
+            'active_amount' => 0,
+            'hold_amount' => 0,
+            'max_order_receive_amount' => 20,
             'proxy' => $this->faker->optional()->ipv4,
             'description' => $this->faker->sentence,
             'payment_method' => $this->faker->randomElement(array_keys(PaypalAccount::getPaymentMethods())),
-            'site_client' => $this->faker->domainName(),
             'status_id' => $this->faker->numberBetween(1, 5),
             'remover' => $this->faker->name,
-            'client_ids' => '1,3'
+            'client_ids' => '1'
         ];
     }
 }

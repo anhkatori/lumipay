@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('merchant_id')->unique();
             $table->string('private_key')->unique();
+            $table->text('invoice_description')->nullable();
+            $table->boolean('status')->default(1); 
             $table->timestamps();
         });
     }

@@ -89,7 +89,6 @@ class PaypalAccountController extends Controller
             'proxy' => 'nullable',
             'seller' => 'required',
             'domain_status' => 'nullable',
-            'site_client' => 'required',
             'status_id' => 'required|exists:paypal_account_statuses,id',
             'description' => 'nullable',
             'xmdt_status' => 'nullable',
@@ -146,7 +145,6 @@ class PaypalAccountController extends Controller
             'proxy' => 'nullable',
             'seller' => 'required',
             'domain_status' => 'nullable',
-            'site_client' => 'required',
             'status_id' => 'required|exists:paypal_account_statuses,id',
             'description' => 'nullable',
             'xmdt_status' => 'nullable',
@@ -162,7 +160,7 @@ class PaypalAccountController extends Controller
         if ($data['payment_method'] == 'invoice') {
             try {
                 $token = HelperPaypal::getAccessToken($data['client_key'],$data['secret_key']);
-                HelperPaypal::createWebhook($token);                
+                $data['webhook_id'] = HelperPaypal::createWebhook($token);              
             } catch (Exception $e) {
                 return redirect()->route('admin.paypal-accounts.edit', $paypalAccount->id)->with('error', $e->getMessage());
             }
@@ -197,7 +195,7 @@ class PaypalAccountController extends Controller
         }
 
         if($moneyToSell >  $paypalAccount->active_amount){
-            return redirect()->back()->width('error', 'Active amount not enough to sell.');
+            return redirect()->back()->with('error', 'Active amount not enough to sell.');
         }
 
         $paypalMoney = new PaypalMoney();

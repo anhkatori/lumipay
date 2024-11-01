@@ -25,7 +25,6 @@ return new class extends Migration {
             $table->timestamp('days_stopped')->nullable();
             $table->text('description')->nullable();
             $table->string('payment_method')->nullable();
-            $table->string('site_client')->nullable();
             $table->foreignId('status_id')->constrained('paypal_account_statuses');
             $table->timestamp('xmdt_status')->nullable(); 
             $table->string('remover')->nullable(); 

@@ -25,6 +25,6 @@ class PayPalManagerDatabaseSeeder extends Seeder
             ]);
         }
 
-        PaypalAccount::factory()->count(5)->create();
+        PaypalAccount::factory()->count(1)->create();
     }
 }

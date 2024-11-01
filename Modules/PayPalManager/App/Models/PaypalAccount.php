@@ -28,9 +28,9 @@ class PaypalAccount extends Model
         'client_ids', 
         'seller',
         'domain_status',
-        'site_client',
         'xmdt_status',
         'remover',
+        'webhook_id',
         'products'
     ];
 

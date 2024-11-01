@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="row {{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'd-none' : '' }}" >
+            <div class="row" style="{{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'display:none' : '' }}">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
                         <label class="form-label" for="email">PayPal Client Key</label>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row {{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'd-none' : '' }}">
+            <div class="row products" style="{{ isset($paypalAccount->payment_method) && $paypalAccount->payment_method !== 'invoice' ? 'display:none' : '' }}">
                 <div class="col-md-12">
                     <div class="form-group  mb-3">
                         <div class="d-flex mb-2 gap-1 align-items-center">
@@ -159,7 +159,7 @@
                 </div>
                 <div class="{{ isset($paypalAccount->id) ? 'col-md-3' : 'col-md-6' }}">
                     <div class="form-group mb-3">
-                        <label class="form-label" for="max_order_receive_amount">Max Order Amount</label>
+                        <label class="form-label" for="max_order_receive_amount">Max Amount</label>
                         <input type="number" step="0.01"
                             class="form-control @error('max_order_receive_amount')is-invalid @enderror"
                             id="max_order_receive_amount" name="max_order_receive_amount"
@@ -169,15 +169,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">
-                        <label class="form-label" for="site_client">Site Client</label>
-                        <input type="text" class="form-control @error('site_client')is-invalid @enderror"
-                            id="site_client" name="site_client"
-                            value="{{ old('site_client', isset($paypalAccount) ? $paypalAccount->site_client : '') }}">
-                    </div>
-                </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <div class="form-group mb-3">
                         <label class="form-label" for="client_ids">Clients</label>
                         <select class="form-control @error('client_ids')is-invalid @enderror" id="client_ids"
@@ -195,7 +187,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="form-group mb-3">
-                        <label class="form-label" for="proxy">Remover</label>
+                        <label class="form-label" for="proxy">Remover Limited</label>
                         <input type="text" class="form-control @error('proxy')is-invalid @enderror" id="remover"
                             name="remover"
                             value="{{ old('remover', isset($paypalAccount) ? $paypalAccount->remover : '') }}">
@@ -278,9 +270,11 @@
     });
     $('#payment_method').on('change', function (){
         if($(this).val() != 'invoice'){
-            $('.row').has('#products, #client_key, #secret_key').hide();
+            $('.row').has('#client_key, #secret_key').hide();
+            $('.row.products').hide();
         }else{
-            $('.row').has('#products, #client_key, #secret_key').show();
+            $('.row').has('#client_key, #secret_key').show();
+            $('.row.products').show();
         }
     })
     $('.add-product-field').on('click', function (e){

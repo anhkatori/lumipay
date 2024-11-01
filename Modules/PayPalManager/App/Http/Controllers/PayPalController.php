@@ -17,14 +17,15 @@ class PayPalController extends Controller
      */
     public function webhook(Request $request)
     {   
+        $requestBody = $request->all();
+        
         Log::build([
             'driver' => 'single',
             'path' => storage_path('logs/paypal-ipn.log'),
-        ])->info('fdfdfdfdfd');
-        $requestBody = file_get_contents('php://input');
+        ])->info(json_encode($requestBody));
 
         if(!$requestBody) {
-            http_response_code(200);
+            http_response_code(500);
             exit();
         } 
 
@@ -43,63 +44,66 @@ class PayPalController extends Controller
             http_response_code(200);
             exit();    
         }
-        $requestBody = json_decode($requestBody, true);
+        $order = Order::find($requestBody['resource']['invoice']['detail']['memo']);
+        if(!$order) {
+            exit();
+        }
+        $client = Client::find($order->client_id);
+        if ($order->method != 'PAYPAL' || !isset($order->method_account)) {
+            exit();
+        }
+        $methodAccount = PaypalAccount::find($order->method_account);
+        $token = HelperPaypal::getAccessToken($methodAccount->client_key,$methodAccount->secret_key);
         $args = [
             'auth_algo' => $headers['PAYPAL-AUTH-ALGO'],
             'cert_url' => $headers['PAYPAL-CERT-URL'],
             'transmission_id' => $headers['PAYPAL-TRANSMISSION-ID'],
             'transmission_sig' => $headers['PAYPAL-TRANSMISSION-SIG'],
             'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'],
-            'webhook_id' => $requestBody['id'],
+            'webhook_id' => $methodAccount->webhook_id,
             'webhook_event' => $requestBody
         ];
-        $order = Order::find($args['webhook_event']['resource']['invoice']['detail']['memo']);
-        $client = Client::find($order['client_id']);
-        if ($order->method != 'PAYPAL' || !isset($order->method_account)) {
-            exit();
-        }
-        $methodAccount = PaypalAccount::find($order->method_account);
-        $token = HelperPaypal::getAccessToken($methodAccount->client_key,$methodAccount->secret_key);
-        $verify = HelperPaypal::verifyWebhook($args, $token);  
+        
+        $verify = HelperPaypal::verifyWebhook($args, $token); 
+        
         if($verify){
             if (isset($requestBody['event_type'])) {
                 $event_type = $requestBody['event_type'];
-                Log::build([
-                    'driver' => 'single',
-                    'path' => storage_path('logs/paypal-ipn.log'),
-                ])->info($event_type);
 
                 switch ($event_type) {
                     case 'INVOICING.INVOICE.PAID':
-                        if ($order['canceled'] != '1') {
+                        if ($order['status'] == 'processing') {
                             $order['status'] = 'complete';
+                            if ($order->method == 'PAYPAL' && isset($order->method_account)) {
+                                $methodAccount = PaypalAccount::find($order->method_account);
+                                $methodAccount->active_amount += $order->amount;
+                                if ($methodAccount->active_amount >= $methodAccount->max_receive_amount) {
+                                    $methodAccount->status_id = 2;
+                                }
+                                $methodAccount->save();
+                            }
+                            $order->save();
+                            $data = [
+                                "request_id" => $order->request_id
+                            ];
+                            $signature = $this->generateSignature($client['private_key'], [
+                                "data" => $data
+                            ]);
+                            $orderData = array(
+                                "data" => $data,
+                                "signature" => $signature
+                            );
+                            $ch = curl_init($order->notify_url);
+                            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($orderData));
+                            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                "Content-Type: application/json",
+                                "Content-Lenght: " . strlen(json_encode($orderData))
+                            ]);
+                            curl_exec($ch);
                         }
-                        if ($order->method == 'PAYPAL' && isset($order->method_account)) {
-                            $methodAccount = PaypalAccount::find($order->method_account);
-                            $methodAccount->active_amount += $order->amount;
-                            $methodAccount->save();
-                        }
-                        $order->save();
-                        $signature = $this->generateSignature($client['private_key'], [
-                            "data" => [
-                                "request_id" => $order['request_id']
-                            ]
-                        ]);
-                        $orderData = array(
-                            "data" => [
-                                "request_id" => $order['request_id']
-                            ],
-                            "signature" => $signature
-                        );
-                        $ch = curl_init($order->notify_url);
-                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($orderData));
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                            "Content-Type: application/json",
-                            "Content-Lenght: " . strlen(json_encode($orderData))
-                        ]);
-                        curl_exec($ch);
+                        
                     default:
                     // Do Stuff...
                         break;

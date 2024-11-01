@@ -24,8 +24,10 @@ return new class extends Migration
             $table->string('notify_url', 191)->nullable();
             $table->string('method', length: 191)->nullable();
             $table->string('status', 191)->nullable();
-            $table->string('canceled', 1)->nullable();
+            $table->string('payment_url')->nullable();
+            $table->string('payment_type')->nullable();
             $table->unsignedBigInteger('method_account')->nullable();
+            $table->string(column: 'addtional')->nullable();
             $table->timestamps();
         });
     }
